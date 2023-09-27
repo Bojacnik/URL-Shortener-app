@@ -1,0 +1,13 @@
+C:\Users\bojac\Projects\WindowsFormsApp2\bin\Debug\WindowsFormsApp2.exe
+C:\Users\bojac\Projects\WindowsFormsApp2\bin\Debug\WindowsFormsApp2.pdb
+C:\Users\bojac\Projects\WindowsFormsApp2\bin\Debug\Newtonsoft.Json.dll
+C:\Users\bojac\Projects\WindowsFormsApp2\bin\Debug\OneOf.dll
+C:\Users\bojac\Projects\WindowsFormsApp2\bin\Debug\Newtonsoft.Json.xml
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.AssemblyReference.cache
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.Form1.resources
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.Properties.Resources.resources
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.GenerateResource.cache
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.CoreCompileInputs.cache
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.csproj.CopyComplete
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.exe
+C:\Users\bojac\Projects\WindowsFormsApp2\obj\Debug\WindowsFormsApp2.pdb
