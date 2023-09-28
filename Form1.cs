@@ -1,17 +1,10 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: WindowsFormsApp2.Form1
-// Assembly: WindowsFormsApp2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 6013BA42-02F4-4668-A0E9-E34B7235D0BC
-// Assembly location: C:\Users\bojac\Downloads\WindowsFormsApp2.exe
-
-using Newtonsoft.Json;
-using System;
-using System.ComponentModel;
+﻿using System;
 using System.Drawing;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using WindowsFormsApp2.Failures;
 
 namespace WindowsFormsApp2
@@ -19,9 +12,8 @@ namespace WindowsFormsApp2
   public class Form1 : Form
   {
     private const string PostUri = "https://cleanuri.com/api/v1/shorten";
-    private IContainer components;
-    private TextBox textBox2;
     private TextBox textBox1;
+    private TextBox textBox2;
     private Button button1;
     private Label label1;
 
@@ -29,13 +21,13 @@ namespace WindowsFormsApp2
 
     private async Task<OneOf.OneOf<NetworkFailure, string>> fetchShortenedUrl(string url)
     {
-      StringContent content = new StringContent("url=" + HttpUtility.UrlEncode(url));
+      var content = new StringContent("url=" + HttpUtility.UrlEncode(url));
       content.Headers.ContentType.MediaType = "application/x-www-form-urlencoded";
-      using (HttpClient httpClient = new HttpClient())
+      using (var httpClient = new HttpClient())
       {
         try
         {
-          HttpResponseMessage httpResponseMessage = await httpClient.PostAsync("https://cleanuri.com/api/v1/shorten", (HttpContent) content);
+          var httpResponseMessage = await httpClient.PostAsync(PostUri, content);
           if (!httpResponseMessage.IsSuccessStatusCode)
             return new PostFailure("Post request resulted in status: " + httpResponseMessage.StatusCode);
 
@@ -58,9 +50,10 @@ namespace WindowsFormsApp2
 
     protected override void Dispose(bool disposing)
     {
-      if (disposing && this.components != null)
-        this.components.Dispose();
-      base.Dispose(disposing);
+      textBox1.Dispose();
+      textBox2.Dispose();
+      button1.Dispose();
+      label1.Dispose();
     }
 
     private void InitializeComponent()
