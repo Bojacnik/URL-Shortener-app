@@ -14,8 +14,8 @@ namespace WindowsFormsApp2.Properties
   [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
   internal sealed class Settings : ApplicationSettingsBase
   {
-    private static Settings defaultInstance = (Settings) SettingsBase.Synchronized((SettingsBase) new Settings());
+    private static Settings defaultInstance = (Settings) Synchronized(new Settings());
 
-    public static Settings Default => Settings.defaultInstance;
+    public static Settings Default => defaultInstance;
   }
 }

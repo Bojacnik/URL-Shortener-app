@@ -30,17 +30,17 @@ namespace WindowsFormsApp2.Properties
     {
       get
       {
-        if (WindowsFormsApp2.Properties.Resources.resourceMan == null)
-          WindowsFormsApp2.Properties.Resources.resourceMan = new ResourceManager("WindowsFormsApp2.Properties.Resources", typeof (WindowsFormsApp2.Properties.Resources).Assembly);
-        return WindowsFormsApp2.Properties.Resources.resourceMan;
+        if (resourceMan == null)
+          resourceMan = new ResourceManager("WindowsFormsApp2.Properties.Resources", typeof (Resources).Assembly);
+        return resourceMan;
       }
     }
 
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     internal static CultureInfo Culture
     {
-      get => WindowsFormsApp2.Properties.Resources.resourceCulture;
-      set => WindowsFormsApp2.Properties.Resources.resourceCulture = value;
+      get => resourceCulture;
+      set => resourceCulture = value;
     }
   }
 }
