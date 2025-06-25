@@ -4,10 +4,15 @@
 // MVID: 6013BA42-02F4-4668-A0E9-E34B7235D0BC
 // Assembly location: C:\Users\bojac\Downloads\WindowsFormsApp2.exe
 
-namespace WindowsFormsApp2
+namespace UrlShortener
 {
   public class UrlDto
   {
-    public string result_url { get; set; }
+    public UrlDto(string resultUrl)
+    {
+      ResultUrl = resultUrl;
+    }
+
+    public string ResultUrl { get; }
   }
 }

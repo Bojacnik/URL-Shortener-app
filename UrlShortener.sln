@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp2", "WindowsFormsApp2.csproj", "{0C65DC09-1FB5-44AA-8560-F4CE1480A022}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener", "UrlShortener.csproj", "{0C65DC09-1FB5-44AA-8560-F4CE1480A022}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

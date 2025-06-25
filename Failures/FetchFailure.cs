@@ -4,7 +4,7 @@
 // MVID: 6013BA42-02F4-4668-A0E9-E34B7235D0BC
 // Assembly location: C:\Users\bojac\Downloads\WindowsFormsApp2.exe
 
-namespace WindowsFormsApp2.Failures
+namespace UrlShortener.Failures
 {
   public class FetchFailure : NetworkFailure
   {

@@ -7,7 +7,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace WindowsFormsApp2
+namespace UrlShortener
 {
   internal static class Program
   {

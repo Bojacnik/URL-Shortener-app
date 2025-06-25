@@ -1,14 +1,14 @@
 ﻿// Decompiled with JetBrains decompiler
-// Type: WindowsFormsApp2.Properties.Settings
-// Assembly: WindowsFormsApp2, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// Type: UrlShortener.Properties.Settings
+// Assembly: UrlShortener, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
 // MVID: 6013BA42-02F4-4668-A0E9-E34B7235D0BC
-// Assembly location: C:\Users\bojac\Downloads\WindowsFormsApp2.exe
+// Assembly location: C:\Users\bojac\Downloads\UrlShortener.exe
 
 using System.CodeDom.Compiler;
 using System.Configuration;
 using System.Runtime.CompilerServices;
 
-namespace WindowsFormsApp2.Properties
+namespace UrlShortener.Properties
 {
   [CompilerGenerated]
   [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
