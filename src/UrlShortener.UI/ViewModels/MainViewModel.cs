@@ -43,7 +43,8 @@ public partial class MainViewModel : ObservableObject
     public IReadOnlyList<string> Themes { get; } = ["System", "Light", "Dark"];
     public ObservableCollection<HistoryItemViewModel> History { get; } = [];
     public bool CanShare => _platform.CanShare;
-    public string Version => "2.1";
+    public string Version { get; } =
+        typeof(MainViewModel).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "?";
 
     // ---- input ----
 

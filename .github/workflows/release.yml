@@ -1,0 +1,110 @@
+# Publishes a GitHub Release when a version tag is pushed:
+#   git tag v2.1.0 && git push origin v2.1.0
+# The version number in the apps comes from the tag.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet test tests/UrlShortener.Tests -c Release
+
+  desktop:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: win-x64
+            os: windows-latest
+          - rid: osx-arm64
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Publish
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          dotnet publish src/UrlShortener.Desktop -c Release -r ${{ matrix.rid }} --self-contained \
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:Version="$VERSION" -o publish
+          rm -f publish/*.pdb
+      - name: Package
+        shell: bash
+        run: |
+          NAME="UrlShortener-${GITHUB_REF_NAME}-${{ matrix.rid }}"
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            7z a "$NAME.zip" ./publish/*
+          else
+            tar -czf "$NAME.tar.gz" -C publish .
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.rid }}
+          path: UrlShortener-*
+
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: 21
+      - run: dotnet workload install android
+      - name: Publish
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Android needs a whole number that grows with every release.
+          CODE=$((100 + ${{ github.run_number }}))
+          dotnet publish src/UrlShortener.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME \
+            -p:Version="$VERSION" -p:ApplicationVersion=$CODE -o publish
+          cp publish/*-Signed.apk "UrlShortener-${GITHUB_REF_NAME}-android.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: UrlShortener-*.apk
+
+  release:
+    needs: [desktop, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { on=1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "See CHANGELOG.md." > notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          body_path: notes.md
+          prerelease: ${{ contains(github.ref_name, '-') }}

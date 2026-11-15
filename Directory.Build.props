@@ -1,0 +1,31 @@
+<Project>
+  <!-- Settings shared by every project in the repo. Project files only hold what is specific to them. -->
+
+  <PropertyGroup Label="Language">
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Version">
+    <!-- The release workflow overrides this from the git tag (v2.1.0 → 2.1.0). -->
+    <Version>2.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Metadata">
+    <Product>URL Shortener</Product>
+    <Authors>Bojacnik</Authors>
+    <Company>Bojacnik</Company>
+    <Copyright>Copyright © 2025-2026 Bojacnik</Copyright>
+    <RepositoryUrl>https://github.com/Bojacnik/URL-Shortener-app</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <!-- On GitHub Actions: reproducible builds and no ignored warnings. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

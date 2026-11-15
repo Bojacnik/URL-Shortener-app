@@ -1,6 +1,6 @@
 using System.Net;
-using UrlShortener.UI.ViewModels;
 using UrlShortener.Core;
+using UrlShortener.UI.ViewModels;
 
 namespace UrlShortener.Tests;
 
@@ -195,6 +195,14 @@ public class MainViewModelTests : IDisposable
         Assert.Equal("Copied is.gd/gh", vm.ToastMessage);
         await Task.Delay(300);
         Assert.False(vm.IsToastVisible);
+    }
+
+    [Fact]
+    public void Version_comes_from_the_build()
+    {
+        var (vm, _) = Create(new FakeHttpHandler());
+        Assert.Matches(@"^\d+\.\d+\.\d+$", vm.Version);
+        Assert.Equal(typeof(MainViewModel).Assembly.GetName().Version!.ToString(3), vm.Version);
     }
 
     [Fact]

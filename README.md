@@ -1,5 +1,8 @@
 # URL Shortener
 
+[![CI](https://github.com/Bojacnik/URL-Shortener-app/actions/workflows/ci.yml/badge.svg)](https://github.com/Bojacnik/URL-Shortener-app/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A link shortener for **Windows, Linux, macOS and Android**, built with [Avalonia UI](https://avaloniaui.net/) and .NET 10. The same UI runs on all of them.
 
 <p>
@@ -22,14 +25,16 @@ History and settings are saved as JSON in the per-user app data folder (`~/.conf
 
 ## Download
 
-Every push builds the apps in GitHub Actions. Open the latest run under **Actions** and download:
+Get the latest version from the [**Releases**](https://github.com/Bojacnik/URL-Shortener-app/releases) page:
 
-| Platform | Artifact |
+| Platform | File |
 | --- | --- |
-| Linux | `UrlShortener-linux-x64` (single executable) |
-| Windows | `UrlShortener-win-x64` (`UrlShortener.exe`) |
-| macOS (Apple Silicon) | `UrlShortener-osx-arm64` |
-| Android 6.0+ | `UrlShortener-android` (`.apk` for 64-bit ARM and x86 devices; allow "install unknown apps" to sideload) |
+| Windows | `UrlShortener-vX.Y.Z-win-x64.zip` (contains `UrlShortener.exe`) |
+| Linux | `UrlShortener-vX.Y.Z-linux-x64.tar.gz` (a single executable) |
+| macOS (Apple Silicon) | `UrlShortener-vX.Y.Z-osx-arm64.tar.gz` |
+| Android 6.0+ | `UrlShortener-vX.Y.Z-android.apk` (for 64-bit ARM and x86 devices; allow "install unknown apps" to sideload) |
+
+Every push also builds these, available as artifacts under **Actions**.
 
 ## Build it yourself
 
@@ -71,12 +76,29 @@ There are 70 tests:
 | `src/UrlShortener.Android` | Android app: activity, Share intent, icons, splash screen. |
 | `tests/UrlShortener.Tests` | xUnit v3 + Avalonia.Headless. |
 
-Package versions are managed centrally in `Directory.Packages.props`.
+Repo-wide files:
+- `Directory.Packages.props`: one version per NuGet package.
+- `Directory.Build.props`: settings shared by all projects (language, version, metadata; warnings become errors in CI).
+- `global.json`: pins the .NET 10 SDK.
+- `.editorconfig`: code style, which CI checks with `dotnet format`.
+- `.gitattributes`: line endings.
+- `.github/dependabot.yml`: weekly dependency updates.
 
 ### Adding a service
 
 Subclass `ShortenerProviderBase`. Implement `BuildRequestUri` and `ParseResponse`, set the alias rules, then register the class in `ShortenerService.CreateDefault`.
 
+## Releasing
+
+1. Move the `[Unreleased]` notes in [CHANGELOG.md](CHANGELOG.md) under a new version heading.
+2. Tag and push: `git tag v2.2.0 && git push origin v2.2.0`.
+
+The [release workflow](.github/workflows/release.yml) tests the code, builds every platform with the version from the tag, and publishes a GitHub Release. The release notes are taken from the changelog.
+
 ## History
 
-Version 1 was a WinForms app for .NET Framework 4.8 that used the CleanURI API, which has since shut down.
+See [CHANGELOG.md](CHANGELOG.md). Version 1 was a WinForms app for .NET Framework 4.8 that used the CleanURI API, which has since shut down.
+
+## License
+
+[MIT](LICENSE) © 2025-2026 Bojacnik

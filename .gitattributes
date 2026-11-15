@@ -1,0 +1,31 @@
+# Normalise line endings: LF in the repo, native on checkout unless stated otherwise.
+* text=auto
+
+# Source and config: always LF, so diffs don't flip between Windows and Linux.
+*.cs        text eol=lf diff=csharp
+*.axaml     text eol=lf
+*.xaml      text eol=lf
+*.csproj    text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+*.slnx      text eol=lf
+*.json      text eol=lf
+*.xml       text eol=lf
+*.manifest  text eol=lf
+*.yml       text eol=lf
+*.md        text eol=lf
+*.sh        text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+*.ps1       text eol=crlf
+
+# Binary files: never touch.
+*.png       binary
+*.jpg       binary
+*.ico       binary
+*.apk       binary
+*.aab       binary
+*.keystore  binary
+*.jks       binary
