@@ -1,5 +1,5 @@
 using System.Net;
-using UrlShortener.App.Services;
+using UrlShortener.UI.Services;
 
 namespace UrlShortener.Tests;
 
@@ -53,6 +53,10 @@ internal sealed class FakePlatform : IPlatformServices
     }
 
     public void SetTheme(string theme) => Theme = theme;
+
+    public bool CanShare { get; set; }
+    public List<string> Shared { get; } = [];
+    public void Share(string text) => Shared.Add(text);
 }
 
 internal sealed class TempDir : IDisposable

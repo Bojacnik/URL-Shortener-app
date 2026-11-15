@@ -1,0 +1,11 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:UrlShortener.UI.Views"
+        x:Class="UrlShortener.UI.Views.MainWindow"
+        Icon="/Assets/app.png"
+        Title="URL Shortener"
+        Width="580" Height="880" MinWidth="380" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Bg}">
+    <views:MainView x:Name="View" />
+</Window>

@@ -1,0 +1,349 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:UrlShortener.UI.ViewModels"
+             xmlns:prov="using:UrlShortener.Core.Providers"
+             xmlns:conv="using:UrlShortener.UI.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="860"
+             x:Class="UrlShortener.UI.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             Background="{DynamicResource Bg}">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Ctrl+Shift+C" Command="{Binding CopyResultCommand}" />
+        <KeyBinding Gesture="Escape" Command="{Binding ShortenCancelCommand}" />
+    </UserControl.KeyBindings>
+
+    <Panel x:Name="Root">
+        <!-- soft brand glow behind the header -->
+        <Border Height="340" VerticalAlignment="Top" Background="{DynamicResource HeroGlow}" IsHitTestVisible="False" />
+
+        <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="ContentStack" MaxWidth="580" Margin="18,14,18,40" Spacing="18">
+
+                <!-- ===== Header ===== -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Border Width="38" Height="38" CornerRadius="12" Background="{StaticResource BrandGradient}"
+                            BoxShadow="{DynamicResource ButtonShadow}">
+                        <PathIcon Data="{StaticResource Icon.Link}" Width="20" Height="20" Foreground="White" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="URL Shortener" FontWeight="SemiBold" FontSize="15" Foreground="{DynamicResource Ink}" />
+                        <TextBlock Text="Free · No account · Private history" Classes="muted small" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="icon" ToolTip.Tip="Settings" AutomationProperties.Name="Settings">
+                        <PathIcon Data="{StaticResource Icon.Tune}" />
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedRight" FlyoutPresenterClasses="settings">
+                                <StackPanel Spacing="16" Width="290">
+                                    <TextBlock Text="Settings" Classes="h2" />
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="APPEARANCE" Classes="label" />
+                                        <ListBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}"
+                                                 ItemContainerTheme="{StaticResource ChipItem}" Background="Transparent">
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                        </ListBox>
+                                    </StackPanel>
+                                    <ToggleSwitch IsChecked="{Binding AutoFallback}" OnContent="" OffContent=""
+                                                  Content="Use another service if one is down" />
+                                    <ToggleSwitch IsChecked="{Binding CopyAutomatically}" OnContent="" OffContent=""
+                                                  Content="Copy new links automatically" />
+                                    <Border Height="1" Background="{DynamicResource Stroke}" />
+                                    <TextBlock Classes="muted small" TextWrapping="Wrap">
+                                        <Run Text="{Binding Version, StringFormat='Version {0}'}" />
+                                        <Run Text=" · Links are made by free public services (is.gd, TinyURL, da.gd, v.gd). History stays on this device." />
+                                    </TextBlock>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </Grid>
+
+                <!-- ===== Hero ===== -->
+                <StackPanel Spacing="6" Margin="2,10,2,0">
+                    <TextBlock Classes="h1" TextWrapping="Wrap">
+                        <Run Text="Make long links" />
+                        <Run Text="short." Foreground="{DynamicResource AccentText}" />
+                    </TextBlock>
+                    <TextBlock Classes="muted" FontSize="14.5" TextWrapping="Wrap"
+                               Text="Paste a link, pick a service and get a tidy short link with a QR code." />
+                </StackPanel>
+
+                <!-- ===== Input card ===== -->
+                <Border Classes="card">
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="6">
+                            <TextBox x:Name="UrlBox" Classes="big" Classes.invalid="{Binding InputHint, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                     Text="{Binding InputUrl}" PlaceholderText="Paste a long link…"
+                                     AutomationProperties.Name="Long URL">
+                                <TextBox.InnerLeftContent>
+                                    <PathIcon Data="{StaticResource Icon.Link}" Width="18" Height="18" Margin="14,0,4,0"
+                                              Foreground="{DynamicResource Muted}" />
+                                </TextBox.InnerLeftContent>
+                                <TextBox.InnerRightContent>
+                                    <Panel Margin="0,0,7,0" VerticalAlignment="Center">
+                                        <Button Classes="soft" Padding="11,7" Command="{Binding PasteCommand}"
+                                                IsVisible="{Binding !HasInput}" ToolTip.Tip="Paste from clipboard">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <PathIcon Data="{StaticResource Icon.Paste}" Width="14" Height="14" />
+                                                <TextBlock Text="Paste" FontSize="13" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Classes="icon" Command="{Binding ClearInputCommand}" IsVisible="{Binding HasInput}"
+                                                ToolTip.Tip="Clear" AutomationProperties.Name="Clear">
+                                            <PathIcon Data="{StaticResource Icon.Close}" Width="16" Height="16" />
+                                        </Button>
+                                    </Panel>
+                                </TextBox.InnerRightContent>
+                                <TextBox.KeyBindings>
+                                    <KeyBinding Gesture="Enter" Command="{Binding ShortenCommand}" />
+                                </TextBox.KeyBindings>
+                            </TextBox>
+                            <TextBlock Classes="error pop" Margin="4,0,0,0" Text="{Binding InputHint}"
+                                       IsVisible="{Binding InputHint, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="SERVICE" Classes="label" Margin="2,0,0,0" />
+                            <ListBox x:Name="ServicePicker" ItemsSource="{Binding Providers}" SelectedItem="{Binding SelectedProvider}"
+                                     ItemContainerTheme="{StaticResource ChipItem}" Background="Transparent" Margin="0,0,0,-8">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="prov:IShortenerProvider">
+                                        <TextBlock Text="{Binding DisplayName}" ToolTip.Tip="{Binding Description}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock Classes="muted small" Margin="2,0,0,0" TextWrapping="Wrap"
+                                       Text="{Binding SelectedProvider.Description}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" IsVisible="{Binding AliasSupported}">
+                            <Button Classes="link" Classes.open="{Binding UseAlias}" Command="{Binding ToggleAliasCommand}"
+                                    HorizontalAlignment="Left" Margin="-2,0,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <PathIcon Data="{StaticResource Icon.Pencil}" Width="14" Height="14" />
+                                    <TextBlock Text="Custom alias" />
+                                    <PathIcon Classes="chevron" Data="{StaticResource Icon.ChevronDown}" Width="16" Height="16" />
+                                </StackPanel>
+                            </Button>
+                            <StackPanel Classes="pop" Spacing="6" IsVisible="{Binding UseAlias}">
+                                <TextBox x:Name="AliasBox" Classes="big compact"
+                                         Classes.invalid="{Binding AliasHint, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                         Text="{Binding Alias}" PlaceholderText="my_link" AutomationProperties.Name="Custom alias">
+                                    <TextBox.InnerLeftContent>
+                                        <TextBlock Text="{Binding AliasPrefix}" VerticalAlignment="Center" Margin="14,0,0,0"
+                                                   Foreground="{DynamicResource Muted}" />
+                                    </TextBox.InnerLeftContent>
+                                    <TextBox.KeyBindings>
+                                        <KeyBinding Gesture="Enter" Command="{Binding ShortenCommand}" />
+                                    </TextBox.KeyBindings>
+                                </TextBox>
+                                <TextBlock Classes="error pop" Margin="4,0,0,0" Text="{Binding AliasHint}"
+                                           IsVisible="{Binding AliasHint, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Button x:Name="ShortenButton" Classes="primary" Classes.busy="{Binding IsBusy}"
+                                Command="{Binding ShortenCommand}">
+                            <Panel>
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center"
+                                            IsVisible="{Binding !IsBusy}">
+                                    <TextBlock Text="Shorten link" VerticalAlignment="Center" />
+                                    <PathIcon Data="{StaticResource Icon.ArrowRight}" Width="18" Height="18" Foreground="White" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center"
+                                            IsVisible="{Binding IsBusy}">
+                                    <Arc Classes="spinner" Width="18" Height="18" StartAngle="0" SweepAngle="270"
+                                         Stroke="White" StrokeThickness="2.5" StrokeLineCap="Round" VerticalAlignment="Center">
+                                        <Arc.RenderTransform>
+                                            <RotateTransform />
+                                        </Arc.RenderTransform>
+                                    </Arc>
+                                    <TextBlock Text="Shortening…" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Panel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== Error ===== -->
+                <Border Classes="banner error pop" IsVisible="{Binding HasError}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <PathIcon Data="{StaticResource Icon.Alert}" Width="18" Height="18" VerticalAlignment="Top" />
+                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" TextWrapping="Wrap" FontSize="13.5" />
+                    </Grid>
+                </Border>
+
+                <!-- ===== Result ===== -->
+                <Border x:Name="ResultCard" Classes="card reveal" IsVisible="{Binding HasResult}">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Border Width="22" Height="22" CornerRadius="11" Background="{DynamicResource SuccessSoft}">
+                                    <PathIcon Data="{StaticResource Icon.Check}" Width="13" Height="13" Foreground="{DynamicResource Success}" />
+                                </Border>
+                                <TextBlock Text="YOUR SHORT LINK" Classes="label" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Classes="icon" Classes.on="{Binding ShowQr}" Command="{Binding ToggleQrCommand}"
+                                    ToolTip.Tip="QR code" AutomationProperties.Name="QR code">
+                                <PathIcon Data="{StaticResource Icon.Qr}" />
+                            </Button>
+                        </Grid>
+
+                        <SelectableTextBlock x:Name="ShortLinkText" Text="{Binding ShortDisplay}" FontSize="28" FontWeight="Bold"
+                                             LetterSpacing="-0.4" TextWrapping="Wrap" Foreground="{DynamicResource AccentText}" />
+                        <TextBlock Classes="muted" Text="{Binding ResultLongUrl}" TextTrimming="CharacterEllipsis"
+                                   ToolTip.Tip="{Binding ResultLongUrl}" Margin="0,-6,0,0" />
+                        <StackPanel Orientation="Horizontal" Spacing="6"
+                                    IsVisible="{Binding ResultNote, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <PathIcon Data="{StaticResource Icon.Info}" Width="14" Height="14" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Classes="muted small" Text="{Binding ResultNote}" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <WrapPanel Margin="0,4,0,-8">
+                            <Button Classes="soft copy" Classes.copied="{Binding JustCopied}" Command="{Binding CopyResultCommand}"
+                                    Margin="0,0,8,8" ToolTip.Tip="Copy (Ctrl+Shift+C)">
+                                <Grid>
+                                    <StackPanel Classes="idle" Orientation="Horizontal" Spacing="7">
+                                        <PathIcon Data="{StaticResource Icon.Copy}" Width="15" Height="15" />
+                                        <TextBlock Text="Copy" />
+                                    </StackPanel>
+                                    <StackPanel Classes="done" Orientation="Horizontal" Spacing="7">
+                                        <PathIcon Data="{StaticResource Icon.Check}" Width="15" Height="15" />
+                                        <TextBlock Text="Copied" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                            <Button Classes="subtle" Command="{Binding OpenResultCommand}" Margin="0,0,8,8">
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <PathIcon Data="{StaticResource Icon.Open}" Width="15" Height="15" />
+                                    <TextBlock Text="Open" />
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="subtle" Command="{Binding ShareResultCommand}" IsVisible="{Binding CanShare}" Margin="0,0,8,8">
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <PathIcon Data="{StaticResource Icon.Share}" Width="15" Height="15" />
+                                    <TextBlock Text="Share" />
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+
+                        <StackPanel Classes="pop" Spacing="8" IsVisible="{Binding ShowQr}" HorizontalAlignment="Center" Margin="0,6,0,0">
+                            <Border Background="White" CornerRadius="18" Padding="14" BorderBrush="{DynamicResource Stroke}" BorderThickness="1">
+                                <Image Source="{Binding QrCodePng, Converter={x:Static conv:PngBytesToBitmapConverter.Instance}}"
+                                       Width="184" Height="184" RenderOptions.BitmapInterpolationMode="None" />
+                            </Border>
+                            <TextBlock Classes="muted small" HorizontalAlignment="Center" Text="Scan with a phone camera" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== History ===== -->
+                <StackPanel Spacing="10" Margin="0,6,0,0">
+                    <Grid ColumnDefinitions="*,Auto" Margin="2,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Recent links" Classes="h2" VerticalAlignment="Center" />
+                            <Border Background="{DynamicResource AccentSoft}" CornerRadius="10" Padding="8,2"
+                                    VerticalAlignment="Center" IsVisible="{Binding !HistoryIsEmpty}">
+                                <TextBlock Text="{Binding HistoryCount}" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentText}" />
+                            </Border>
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="link danger" Content="Clear all"
+                                Command="{Binding ClearHistoryCommand}" IsVisible="{Binding !HistoryIsEmpty}" />
+                    </Grid>
+
+                    <TextBox Classes="big compact" Text="{Binding HistoryFilter}" PlaceholderText="Search your links"
+                             IsVisible="{Binding ShowHistorySearch}" Background="{DynamicResource Surface}">
+                        <TextBox.InnerLeftContent>
+                            <PathIcon Data="{StaticResource Icon.Search}" Width="17" Height="17" Margin="14,0,2,0"
+                                      Foreground="{DynamicResource Muted}" />
+                        </TextBox.InnerLeftContent>
+                    </TextBox>
+
+                    <Border Classes="card" Padding="24" IsVisible="{Binding HistoryIsEmpty}">
+                        <StackPanel Spacing="10" HorizontalAlignment="Center">
+                            <Border Width="52" Height="52" CornerRadius="26" Background="{DynamicResource AccentSoft}" HorizontalAlignment="Center">
+                                <PathIcon Data="{StaticResource Icon.History}" Width="24" Height="24" Foreground="{DynamicResource AccentText}" />
+                            </Border>
+                            <TextBlock Text="No links yet" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource Ink}" />
+                            <TextBlock Classes="muted" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                       Text="Links you shorten are saved here, only on this device." />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Classes="muted" HorizontalAlignment="Center" Margin="0,8" Text="No links match your search."
+                               IsVisible="{Binding NoSearchMatches}" />
+
+                    <ItemsControl x:Name="HistoryList" ItemsSource="{Binding History}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Spacing="8" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:HistoryItemViewModel">
+                                <Button Classes="row" ToolTip.Tip="Tap to copy"
+                                        Command="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).CopyHistoryItemCommand}"
+                                        CommandParameter="{Binding}">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Border Width="40" Height="40" CornerRadius="12" VerticalAlignment="Center"
+                                                Background="{Binding Hue, Converter={x:Static conv:HueToBrushConverter.Instance}}">
+                                            <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" FontSize="16"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                                            <TextBlock Text="{Binding ShortDisplay}" FontWeight="SemiBold" FontSize="14.5"
+                                                       Foreground="{DynamicResource Ink}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding LongDisplay}" Classes="muted small" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Classes="muted" FontSize="11" Opacity="0.85">
+                                                <Run Text="{Binding ProviderId}" />
+                                                <Run Text=" · " />
+                                                <Run Text="{Binding When}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Classes="icon" ToolTip.Tip="Open" AutomationProperties.Name="Open"
+                                                    Command="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).OpenHistoryItemCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <PathIcon Data="{StaticResource Icon.Open}" />
+                                            </Button>
+                                            <Button Classes="icon" ToolTip.Tip="Share" AutomationProperties.Name="Share"
+                                                    IsVisible="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).CanShare}"
+                                                    Command="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).ShareHistoryItemCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <PathIcon Data="{StaticResource Icon.Share}" />
+                                            </Button>
+                                            <Button Classes="icon danger" ToolTip.Tip="Remove" AutomationProperties.Name="Remove"
+                                                    Command="{Binding $parent[ItemsControl].((vm:MainViewModel)DataContext).RemoveHistoryItemCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <PathIcon Data="{StaticResource Icon.Delete}" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===== Toast ===== -->
+        <Border Classes="toast" Classes.shown="{Binding IsToastVisible}"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="20,0,20,28">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource Icon.Check}" Width="15" Height="15" />
+                <TextBlock Text="{Binding ToastMessage}" FontSize="13.5" FontWeight="Medium" />
+            </StackPanel>
+        </Border>
+    </Panel>
+</UserControl>

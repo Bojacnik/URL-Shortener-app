@@ -1,5 +1,5 @@
 using System.Net;
-using UrlShortener.App.ViewModels;
+using UrlShortener.UI.ViewModels;
 using UrlShortener.Core;
 
 namespace UrlShortener.Tests;
@@ -14,7 +14,11 @@ public class MainViewModelTests : IDisposable
     private (MainViewModel vm, AppStorage storage) Create(FakeHttpHandler http)
     {
         var storage = new AppStorage(_dir.Path);
-        return (new MainViewModel(ShortenerService.CreateDefault(http.Client()), storage, _platform), storage);
+        var vm = new MainViewModel(ShortenerService.CreateDefault(http.Client()), storage, _platform)
+        {
+            FeedbackDuration = TimeSpan.FromMilliseconds(150),
+        };
+        return (vm, storage);
     }
 
     [Fact]
@@ -32,8 +36,12 @@ public class MainViewModelTests : IDisposable
         Assert.Equal("https://example.com/long", vm.ResultLongUrl);
         Assert.Equal("https://is.gd/abc", _platform.Clipboard);
         Assert.NotNull(vm.QrCodePng);
-        Assert.Equal(StatusKind.Success, vm.Status);
+        Assert.Null(vm.ErrorMessage);
+        Assert.Equal("is.gd/abc", vm.ShortDisplay);
+        Assert.True(vm.JustCopied);
         Assert.Single(vm.History);
+        await Task.Delay(300);
+        Assert.False(vm.JustCopied); // the "Copied" state wears off
 
         await Task.Delay(100); // history is saved in the background
         Assert.Single(await storage.LoadHistoryAsync());
@@ -49,8 +57,8 @@ public class MainViewModelTests : IDisposable
         vm.InputUrl = "example.com";
         await vm.ShortenCommand.ExecuteAsync(null);
 
-        Assert.Equal(StatusKind.Error, vm.Status);
-        Assert.Contains("valid URL", vm.StatusMessage);
+        Assert.True(vm.HasError);
+        Assert.Contains("valid URL", vm.ErrorMessage);
         Assert.Null(vm.ShortUrl);
         Assert.Empty(vm.History);
     }
@@ -127,6 +135,76 @@ public class MainViewModelTests : IDisposable
         _platform.Clipboard = "  https://example.com/x \n";
         await vm.PasteCommand.ExecuteAsync(null);
         Assert.Equal("https://example.com/x", vm.InputUrl);
+    }
+
+    [Fact]
+    public async Task Typing_clears_the_previous_error()
+    {
+        var http = new FakeHttpHandler().On("is.gd", HttpStatusCode.ServiceUnavailable, "");
+        var (vm, _) = Create(http);
+        vm.AutoFallback = false;
+        vm.InputUrl = "example.com";
+        await vm.ShortenCommand.ExecuteAsync(null);
+        Assert.True(vm.HasError);
+
+        vm.InputUrl = "example.com/x";
+        Assert.False(vm.HasError);
+    }
+
+    [Fact]
+    public async Task Shared_text_is_extracted_and_shortened_immediately()
+    {
+        var http = new FakeHttpHandler().On("is.gd", HttpStatusCode.OK, """{ "shorturl": "https://is.gd/shared" }""");
+        var (vm, _) = Create(http);
+        await vm.InitializeAsync();
+
+        await vm.ReceiveSharedTextAsync("Look at this https://example.com/article?id=7 — so good");
+
+        Assert.Equal("https://example.com/article?id=7", vm.ResultLongUrl);
+        Assert.Equal("https://is.gd/shared", vm.ShortUrl);
+    }
+
+    [Fact]
+    public async Task Share_only_where_the_platform_supports_it()
+    {
+        var http = new FakeHttpHandler().On("is.gd", HttpStatusCode.OK, """{ "shorturl": "https://is.gd/s" }""");
+        var (vm, _) = Create(http);
+        vm.InputUrl = "example.com";
+        await vm.ShortenCommand.ExecuteAsync(null);
+        Assert.False(vm.ShareResultCommand.CanExecute(null));
+
+        _platform.CanShare = true;
+        var (phoneVm, _) = Create(http);
+        phoneVm.InputUrl = "example.com";
+        await phoneVm.ShortenCommand.ExecuteAsync(null);
+        phoneVm.ShareResultCommand.Execute(null);
+        Assert.Equal(["https://is.gd/s"], _platform.Shared);
+    }
+
+    [Fact]
+    public async Task Copying_from_history_shows_a_toast_that_goes_away()
+    {
+        var storage = new AppStorage(_dir.Path);
+        await storage.SaveHistoryAsync([new HistoryEntry("https://github.com/a", "https://is.gd/gh", "is.gd", DateTimeOffset.Now)]);
+        var (vm, _) = Create(new FakeHttpHandler());
+        await vm.InitializeAsync();
+
+        await vm.CopyHistoryItemCommand.ExecuteAsync(vm.History[0]);
+        Assert.Equal("https://is.gd/gh", _platform.Clipboard);
+        Assert.True(vm.IsToastVisible);
+        Assert.Equal("Copied is.gd/gh", vm.ToastMessage);
+        await Task.Delay(300);
+        Assert.False(vm.IsToastVisible);
+    }
+
+    [Fact]
+    public void History_item_display_helpers()
+    {
+        var item = new HistoryItemViewModel(new HistoryEntry("https://www.github.com/Bojacnik/", "https://is.gd/x1", "is.gd", DateTimeOffset.Now));
+        Assert.Equal("is.gd/x1", item.ShortDisplay);
+        Assert.Equal("github.com/Bojacnik", item.LongDisplay);
+        Assert.Equal("G", item.Initial);
+        Assert.Equal(item.Hue, new HistoryItemViewModel(item.Entry with { ShortUrl = "https://is.gd/x2" }).Hue);
     }
 
     [Theory]

@@ -18,6 +18,14 @@ public class UrlValidatorTests
     }
 
     [Theory]
+    [InlineData("Check this out https://example.com/a?b=1 it's great", "https://example.com/a?b=1")]
+    [InlineData("Great video (https://youtu.be/xyz).", "https://youtu.be/xyz")]
+    [InlineData("  example.com/page ", "example.com/page")]
+    [InlineData("HTTP://EXAMPLE.COM", "HTTP://EXAMPLE.COM")]
+    public void Extracts_url_from_shared_text(string text, string expected) =>
+        Assert.Equal(expected, UrlValidator.ExtractUrl(text));
+
+    [Theory]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("hello")]

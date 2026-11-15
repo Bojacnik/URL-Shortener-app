@@ -67,6 +67,17 @@ public static class UrlValidator
         return true;
     }
 
+    /// <summary>
+    /// Pulls the first link out of free text, such as an Android share ("Check this out https://…").
+    /// Falls back to the whole trimmed text when there is no http(s) link in it.
+    /// </summary>
+    public static string ExtractUrl(string? text)
+    {
+        var trimmed = text?.Trim() ?? "";
+        var match = System.Text.RegularExpressions.Regex.Match(trimmed, @"https?://[^\s<>""']+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return match.Success ? match.Value.TrimEnd('.', ',', ';', ')', ']', '!', '?') : trimmed;
+    }
+
     private static bool IsPrivate(IPAddress ip)
     {
         if (IPAddress.IsLoopback(ip)) return true;
