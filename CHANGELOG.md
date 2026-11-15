@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - MIT license, `global.json`, `Directory.Build.props`, `.editorconfig` and `.gitattributes`.
 - Dependabot updates for NuGet packages (Avalonia packages grouped together) and GitHub Actions.
 - Release workflow: pushing a `v*` tag publishes a GitHub Release with the Windows, Linux, macOS and Android builds attached.
+- Every release file comes with a `SHA256SUMS` entry and a signed build attestation (Sigstore), which you can check with `gh attestation verify`.
 
 ## [2.1.0] - 2026-11-16
 

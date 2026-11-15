@@ -36,6 +36,27 @@ Get the latest version from the [**Releases**](https://github.com/Bojacnik/URL-S
 
 Every push also builds these, available as artifacts under **Actions**.
 
+### Verify a download
+
+Each release includes a `SHA256SUMS` file and a signed [build attestation](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds). Together they prove the file is intact and was built by this repository's release workflow, not uploaded by someone else.
+
+```bash
+# The file wasn't corrupted or swapped:
+sha256sum -c SHA256SUMS --ignore-missing
+
+# The file was built by GitHub Actions from this repo (needs the GitHub CLI):
+gh attestation verify UrlShortener-v2.1.0-linux-x64.tar.gz -R Bojacnik/URL-Shortener-app
+```
+
+On Windows, use `Get-FileHash <file>` in PowerShell and compare the result with `SHA256SUMS`.
+
+### First start on Windows and macOS
+
+The desktop builds aren't code-signed yet, so the first time you start them:
+- **Windows:** SmartScreen shows "Windows protected your PC". Click **More info → Run anyway**.
+- **macOS:** open the app, then go to **System Settings → Privacy & Security** and click **Open Anyway**.
+- **Linux:** run `chmod +x UrlShortener` if needed, then `./UrlShortener`.
+
 ## Build it yourself
 
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).

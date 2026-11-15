@@ -88,12 +88,31 @@ jobs:
   release:
     needs: [desktop, android]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write          # create the GitHub Release
+      id-token: write          # get a short-lived Sigstore signing certificate
+      attestations: write      # store the build attestations
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+
+      # Checksums: `sha256sum -c SHA256SUMS` proves a download isn't corrupted or swapped.
+      - name: Checksums
+        working-directory: dist
+        run: |
+          sha256sum UrlShortener-* > SHA256SUMS
+          cat SHA256SUMS
+
+      # Build provenance, signed through Sigstore: proves each file was built by this
+      # workflow from this repo and commit. Check with `gh attestation verify <file> -R <repo>`.
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-checksums: dist/SHA256SUMS
       - name: Release notes from CHANGELOG.md
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
