@@ -14,7 +14,11 @@ jobs:
         with:
           global-json-file: global.json
       - name: Check formatting (.editorconfig)
-        run: dotnet format UrlShortener.slnx --verify-no-changes --exclude src/UrlShortener.Android
+        # Per project: loading the whole solution would need the Android workload on this machine.
+        run: |
+          for p in src/UrlShortener.Core src/UrlShortener.UI src/UrlShortener.Desktop tests/UrlShortener.Tests; do
+            dotnet format "$p" --verify-no-changes
+          done
       - run: dotnet test tests/UrlShortener.Tests -c Release
 
   desktop:
