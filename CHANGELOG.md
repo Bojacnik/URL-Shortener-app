@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.2.2] - 2026-11-16
+
+### Fixed
+- Android: the gap under the status bar got bigger in 2.2.1. Avalonia already keeps the app clear of the system bars, so the app no longer adds its own safe-area padding at all. The status bar now takes the app's background colour, with readable icons in both themes.
+
 ## [2.2.1] - 2026-11-16
 
 ### Fixed
@@ -63,7 +68,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 - First version: a WinForms app that shortened links through the CleanURI API.
 
-[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.0.0...v2.1.0
