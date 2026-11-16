@@ -6,20 +6,26 @@
 A link shortener for **Windows, Linux, macOS and Android**, built with [Avalonia UI](https://avaloniaui.net/) and .NET 10. The same UI runs on all of them.
 
 <p>
-  <img src="docs/desktop-light.png" alt="Desktop, light theme" width="420" />
-  <img src="docs/phone-dark.png" alt="Android phone, dark theme" width="300" />
+  <img src="docs/desktop-light.png" alt="Shorten, light theme" width="380" />
+  <img src="docs/phone-dark.png" alt="Android phone, dark theme" width="270" />
+</p>
+<p>
+  <img src="docs/expand.png" alt="Expand: where a short link really goes" width="380" />
+  <img src="docs/japanese.png" alt="Japanese" width="270" />
 </p>
 
 ## Features
 
-- **Four free public services, with no account or API key:** [is.gd](https://is.gd) (the default), [TinyURL](https://tinyurl.com), [da.gd](https://da.gd) and [v.gd](https://v.gd).
-- **Automatic fallback:** if the chosen service is down or rate-limiting, the next one is tried. Your own mistakes, such as an invalid URL or an alias that's taken, don't trigger a fallback.
-- **Custom aliases** (`is.gd/my_link`), checked against each service's rules as you type.
-- **Live validation:** `example.com` works without `https://`. Local and private-network addresses are rejected.
+- **Shorten:** four free public services with no account or API key: [is.gd](https://is.gd) (the default), [TinyURL](https://tinyurl.com), [da.gd](https://da.gd) and [v.gd](https://v.gd). If the chosen service is down, the next one is tried automatically. Supports custom aliases (`is.gd/my_link`).
+- **Batch:** paste up to 50 links, one per line, and shorten them all. Copy the results as a list, or as a two-column table that pastes straight into Excel, LibreOffice or Google Sheets.
+- **Expand:** paste a short link to see where it really goes before you open it. Redirects are followed without loading any page, the whole path is shown, and following stops before any local or private network address.
+- **18 languages:** English, Español, Čeština, Deutsch, Français, Italiano, Português (Brasil), Polski, Nederlands, Русский, Українська, Türkçe, Bahasa Indonesia, العربية (right-to-left), हिन्दी, 简体中文, 日本語 and 한국어. The app follows your system language by default; change it in Settings.
 - **One-tap actions:** Copy (automatic by default; `Ctrl+Shift+C` on desktop), Open, Share (Android), and a QR code.
-- **Searchable recent links:** tap a row to copy the link again. History is stored only on this device.
-- **Light, dark or system theme**, with small animations: cards fade in, the Copy button confirms "Copied", and a toast appears for actions.
-- **Android Share menu:** in Chrome, YouTube or any other app, choose *Share → URL Shortener* and the link is shortened right away.
+- **Searchable recent links:** history is stored only on this device.
+- **Light, dark or system theme**, with small animations throughout.
+- **Android Share menu:** in Chrome, YouTube or any other app, choose *Share → URL Shortener*. Long links are shortened right away; short links are expanded.
+- **Desktop shortcut:** `UrlShortener --quick` shortens whatever link is on the clipboard in a small pop-up, copies the result and closes. Give it a keyboard shortcut in your system settings (KDE: *System Settings → Shortcuts → Add Command*; GNOME: *Settings → Keyboard → Custom Shortcuts*; Windows: a shortcut file with a *Shortcut key*). It works on Wayland too.
+- **Command line:** `UrlShortener shorten <url> [--service is.gd|tinyurl|da.gd|v.gd] [--alias name]` prints the short link, for scripts and terminals on Linux and macOS.
 
 History and settings are saved as JSON in the per-user app data folder (`~/.config/UrlShortener` on Linux, `%APPDATA%\UrlShortener` on Windows, and app-private storage on Android).
 
@@ -82,10 +88,11 @@ The Android build is signed with the debug key, which is fine for sideloading. P
 dotnet test tests/UrlShortener.Tests
 ```
 
-There are 70 tests:
+There are 151 tests:
 - **Providers:** run against a fake HTTP handler, so no network is needed.
-- **Logic and storage:** fallback, validation, storage, and the view model.
-- **Headless UI tests:** they drive the real views (type a URL, press Enter, check the result) and render desktop and phone-sized screenshots. Set `SCREENSHOT_DIR` to keep the screenshots.
+- **Logic and storage:** fallback, validation, storage, and the view models (batch, expand, quick mode).
+- **Translations:** every language must have every string, with the same `{0}` placeholders as English.
+- **Headless UI tests:** they drive the real views (type a URL, press Enter, check the result) and render desktop and phone-sized screenshots, including Arabic (right-to-left), Japanese and Hindi. Set `SCREENSHOT_DIR` to keep the screenshots.
 
 ## Project layout
 
@@ -104,6 +111,10 @@ Repo-wide files:
 - `.editorconfig`: code style, which CI checks with `dotnet format`.
 - `.gitattributes`: line endings.
 - `.github/dependabot.yml`: weekly dependency updates.
+
+### Adding or improving a translation
+
+The strings live in `src/UrlShortener.UI/i18n/<language>.json`, and English (`en.json`) is the reference. To add a language, copy `en.json`, translate the values, and add the language to `Loc.Languages` in `src/UrlShortener.UI/Localization/Loc.cs`. The tests check that nothing is missing. The translations were written with AI assistance, so corrections from native speakers are very welcome.
 
 ### Adding a service
 

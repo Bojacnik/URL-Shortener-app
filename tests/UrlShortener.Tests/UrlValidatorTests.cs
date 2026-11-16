@@ -13,7 +13,7 @@ public class UrlValidatorTests
     [InlineData("https://příklad.cz", "https://příklad.cz/")]
     public void Accepts_and_normalizes(string input, string expected)
     {
-        Assert.True(UrlValidator.TryNormalize(input, out var url, out var error), error);
+        Assert.True(UrlValidator.TryNormalize(input, out var url, out string? error), error);
         Assert.Equal(expected, url.ToString());
     }
 
@@ -39,8 +39,24 @@ public class UrlValidatorTests
     [InlineData("https://example.")]
     public void Rejects(string input)
     {
-        Assert.False(UrlValidator.TryNormalize(input, out var url, out var error));
+        Assert.False(UrlValidator.TryNormalize(input, out var url, out string? error));
         Assert.Null(url);
         Assert.False(string.IsNullOrWhiteSpace(error));
+    }
+}
+
+public class UrlProblemTests
+{
+    [Theory]
+    [InlineData("", UrlProblem.Empty)]
+    [InlineData("a b.com", UrlProblem.Spaces)]
+    [InlineData("ftp://x.com", UrlProblem.Scheme)]
+    [InlineData("http://localhost:8080", UrlProblem.LocalAddress)]
+    [InlineData("http://printer.local/", UrlProblem.LocalAddress)]
+    [InlineData("hello", UrlProblem.NoDomain)]
+    public void Reports_the_specific_problem(string input, UrlProblem expected)
+    {
+        Assert.False(UrlValidator.TryNormalize(input, out _, out UrlProblem problem));
+        Assert.Equal(expected, problem);
     }
 }

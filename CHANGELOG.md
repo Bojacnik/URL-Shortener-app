@@ -5,11 +5,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-16
+
 ### Added
-- MIT license, `global.json`, `Directory.Build.props`, `.editorconfig` and `.gitattributes`.
-- Dependabot updates for NuGet packages (Avalonia packages grouped together) and GitHub Actions.
-- Release workflow: pushing a `v*` tag publishes a GitHub Release with the Windows, Linux, macOS and Android builds attached.
+- **18 languages:** English, Spanish, Czech, German, French, Italian, Portuguese (Brazil), Polish, Dutch, Russian, Ukrainian, Turkish, Indonesian, Arabic (right-to-left), Hindi, Chinese (Simplified), Japanese and Korean. The app follows the system language, and you can change it in Settings without restarting.
+- **Expand mode:** see where a short link really goes before opening it. Redirects are followed one hop at a time without loading pages, the full path is shown, and following stops before any local or private network address.
+- **Batch mode:** shorten up to 50 links at once. Results can be copied as a list or as a two-column table for spreadsheets.
+- **Short-link detection:** pasting a link that is already short (bit.ly, t.co, youtu.be …) offers to expand it, and sharing one to the app on Android expands it automatically.
+- **Desktop quick mode:** `UrlShortener --quick` shortens the link on the clipboard in a small pop-up and copies the result. Bind it to a keyboard shortcut in your system settings.
+- **Command line:** `UrlShortener shorten <url> [--service …] [--alias …]` prints a short link, for scripts.
 - Every release file comes with a `SHA256SUMS` entry and a signed build attestation (Sigstore), which you can check with `gh attestation verify`.
+- MIT license, `global.json`, `Directory.Build.props`, `.editorconfig`, `.gitattributes`, Dependabot, and a release workflow that publishes a GitHub Release when a `v*` tag is pushed.
+
+### Changed
+- A segmented Shorten / Batch / Expand switcher at the top of the app.
+- Error messages are now short translated explanations instead of the services' own English text.
 
 ## [2.1.0] - 2026-11-16
 
@@ -48,7 +58,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 - First version: a WinForms app that shortened links through the CleanURI API.
 
-[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Bojacnik/URL-Shortener-app/releases/tag/v2.0.0
 [1.0.0]: https://github.com/Bojacnik/URL-Shortener-app/commits/master

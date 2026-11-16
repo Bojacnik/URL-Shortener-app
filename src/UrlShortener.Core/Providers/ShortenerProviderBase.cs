@@ -18,21 +18,27 @@ public abstract partial class ShortenerProviderBase(HttpClient http) : IShortene
     protected virtual int AliasMaxLength => 30;
     protected virtual bool AliasAllowsDash => true;
 
-    public virtual string? ValidateAlias(string alias)
+    public AliasRule? AliasRule => SupportsCustomAlias ? new AliasRule(AliasMinLength, AliasMaxLength, AliasAllowsDash) : null;
+
+    public AliasProblem? CheckAlias(string alias)
     {
-        if (!SupportsCustomAlias)
-            return $"{DisplayName} doesn't support custom aliases.";
-        if (alias.Length < AliasMinLength || alias.Length > AliasMaxLength)
-            return AliasMinLength == AliasMaxLength
-                ? $"{DisplayName} aliases must be {AliasMinLength} characters."
-                : $"{DisplayName} aliases must be {AliasMinLength}–{AliasMaxLength} characters.";
+        if (!SupportsCustomAlias) return AliasProblem.NotSupported;
+        if (alias.Length < AliasMinLength || alias.Length > AliasMaxLength) return AliasProblem.Length;
         var ok = AliasAllowsDash ? AliasWithDash().IsMatch(alias) : AliasNoDash().IsMatch(alias);
-        if (!ok)
-            return AliasAllowsDash
-                ? "Use only letters, numbers, '-' and '_' in the alias."
-                : $"{DisplayName} aliases may contain only letters, numbers and '_'.";
-        return null;
+        return ok ? null : AliasProblem.Characters;
     }
+
+    public string? ValidateAlias(string alias) => CheckAlias(alias) switch
+    {
+        null => null,
+        AliasProblem.NotSupported => $"{DisplayName} doesn't support custom aliases.",
+        AliasProblem.Length => AliasMinLength == AliasMaxLength
+            ? $"{DisplayName} aliases must be {AliasMinLength} characters."
+            : $"{DisplayName} aliases must be {AliasMinLength}–{AliasMaxLength} characters.",
+        _ => AliasAllowsDash
+            ? "Use only letters, numbers, '-' and '_' in the alias."
+            : $"{DisplayName} aliases may contain only letters, numbers and '_'.",
+    };
 
     public async Task<ShortenResult> ShortenAsync(Uri longUrl, string? alias, CancellationToken cancellationToken = default)
     {

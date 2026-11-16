@@ -61,6 +61,6 @@ public class MainActivity : AvaloniaMainActivity
         var send = new Intent(Intent.ActionSend);
         send.SetType("text/plain");
         send.PutExtra(Intent.ExtraText, text);
-        StartActivity(Intent.CreateChooser(send, "Share short link"));
+        StartActivity(Intent.CreateChooser(send, UrlShortener.UI.Localization.Loc.Instance["Share.Chooser"]));
     }
 }

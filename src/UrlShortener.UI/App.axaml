@@ -33,11 +33,15 @@
                     <SolidColorBrush x:Key="DangerSoft" Color="#FDECEE" />
                     <SolidColorBrush x:Key="Success" Color="#12A150" />
                     <SolidColorBrush x:Key="SuccessSoft" Color="#E3F6EA" />
+                    <SolidColorBrush x:Key="Warn" Color="#B45309" />
+                    <SolidColorBrush x:Key="WarnSoft" Color="#FEF3E2" />
                     <SolidColorBrush x:Key="ToastBg" Color="#1D1F28" />
                     <SolidColorBrush x:Key="ToastFg" Color="#F5F6FA" />
                     <BoxShadows x:Key="CardShadow">0 1 2 0 #0D14151C, 0 10 30 -8 #263B3D8F</BoxShadows>
                     <BoxShadows x:Key="ButtonShadow">0 6 18 -6 #995558E8</BoxShadows>
                     <BoxShadows x:Key="ButtonShadowHover">0 10 24 -6 #CC5558E8</BoxShadows>
+                    <BoxShadows x:Key="SegmentShadow">0 1 3 0 #1F14151C</BoxShadows>
+                    <SolidColorBrush x:Key="SegmentSelected" Color="#FFFFFF" />
                     <LinearGradientBrush x:Key="HeroGlow" StartPoint="50%,0%" EndPoint="50%,100%">
                         <GradientStop Offset="0" Color="#336366F1" />
                         <GradientStop Offset="1" Color="#006366F1" />
@@ -59,11 +63,15 @@
                     <SolidColorBrush x:Key="DangerSoft" Color="#3A1D22" />
                     <SolidColorBrush x:Key="Success" Color="#3DD68C" />
                     <SolidColorBrush x:Key="SuccessSoft" Color="#15301F" />
+                    <SolidColorBrush x:Key="Warn" Color="#FBBF5C" />
+                    <SolidColorBrush x:Key="WarnSoft" Color="#3A2C14" />
                     <SolidColorBrush x:Key="ToastBg" Color="#ECEDF4" />
                     <SolidColorBrush x:Key="ToastFg" Color="#14151C" />
                     <BoxShadows x:Key="CardShadow">0 10 30 -10 #80000000</BoxShadows>
                     <BoxShadows x:Key="ButtonShadow">0 6 18 -6 #807C7FFF</BoxShadows>
                     <BoxShadows x:Key="ButtonShadowHover">0 10 26 -6 #B37C7FFF</BoxShadows>
+                    <BoxShadows x:Key="SegmentShadow">0 1 3 0 #66000000</BoxShadows>
+                    <SolidColorBrush x:Key="SegmentSelected" Color="#30333F" />
                     <LinearGradientBrush x:Key="HeroGlow" StartPoint="50%,0%" EndPoint="50%,100%">
                         <GradientStop Offset="0" Color="#406366F1" />
                         <GradientStop Offset="1" Color="#006366F1" />

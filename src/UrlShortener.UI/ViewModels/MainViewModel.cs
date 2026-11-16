@@ -1,31 +1,55 @@
 using System.Collections.ObjectModel;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using UrlShortener.Core;
 using UrlShortener.Core.Providers;
+using UrlShortener.UI.Localization;
 using UrlShortener.UI.Services;
 
 namespace UrlShortener.UI.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private readonly ShortenerService _shortener;
     private readonly AppStorage _storage;
-    private readonly IPlatformServices _platform;
     private readonly List<HistoryItemViewModel> _allHistory = [];
     private bool _loadingSettings;
     private int _toastVersion;
     private int _copiedVersion;
+    private LocalizedText? _error;
+    private LocalizedText? _resultNote;
 
-    public MainViewModel(ShortenerService shortener, AppStorage storage, IPlatformServices platform)
+    public MainViewModel(ShortenerService shortener, AppStorage storage, IPlatformServices platform, LinkExpander? expander = null)
     {
-        _shortener = shortener;
+        Shortener = shortener;
         _storage = storage;
-        _platform = platform;
+        Platform = platform;
         Providers = shortener.Providers;
+
+        ModeChoices = [new(AppMode.Shorten, "Mode.Shorten"), new(AppMode.Batch, "Mode.Batch"), new(AppMode.Expand, "Mode.Expand")];
+        ThemeChoices = [new("System", "Theme.System"), new("Light", "Theme.Light"), new("Dark", "Theme.Dark")];
+        LanguageChoices =
+        [
+            new(Loc.SystemCode, "Settings.SystemLanguage"),
+            .. Loc.Languages.Select(l => new Choice<string>(l.Code, "", l.NativeName)),
+        ];
+
+        Batch = new BatchViewModel(this);
+        Expand = new ExpandViewModel(this, expander ?? new LinkExpander(LinkExpander.CreateHttpClient()));
+
         _loadingSettings = true;
         SelectedProvider = Providers[0];
         _loadingSettings = false;
+
+        // Weak, so a view model that's no longer used can be collected even though Loc lives forever.
+        var weak = new WeakReference<MainViewModel>(this);
+        EventHandler? handler = null;
+        handler = (_, _) =>
+        {
+            if (weak.TryGetTarget(out var vm)) vm.OnLanguageChanged();
+            else Loc.Instance.LanguageChanged -= handler;
+        };
+        Loc.Instance.LanguageChanged += handler;
     }
 
     /// <summary>Design-time constructor for the XAML previewer.</summary>
@@ -36,24 +60,57 @@ public partial class MainViewModel : ObservableObject
     {
     }
 
+    internal ShortenerService Shortener { get; }
+    internal IPlatformServices Platform { get; }
+
     /// <summary>How long "Copied" and toasts stay up. Tests shorten this.</summary>
     internal TimeSpan FeedbackDuration { get; set; } = TimeSpan.FromSeconds(2.2);
 
+    public BatchViewModel Batch { get; }
+    public ExpandViewModel Expand { get; }
+
     public IReadOnlyList<IShortenerProvider> Providers { get; }
-    public IReadOnlyList<string> Themes { get; } = ["System", "Light", "Dark"];
+    public IReadOnlyList<Choice<AppMode>> ModeChoices { get; }
+    public IReadOnlyList<Choice<string>> ThemeChoices { get; }
+    public IReadOnlyList<Choice<string>> LanguageChoices { get; }
     public ObservableCollection<HistoryItemViewModel> History { get; } = [];
-    public bool CanShare => _platform.CanShare;
+
+    public bool CanShare => Platform.CanShare;
+    public bool IsDesktop => !OperatingSystem.IsAndroid() && !OperatingSystem.IsIOS();
+    public FlowDirection FlowDirection => Loc.Instance.IsRightToLeft ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+
     public string Version { get; } =
         typeof(MainViewModel).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "?";
+
+    public string AboutText => Loc.Instance.Format("Settings.About", Version);
+
+    // ---- mode ----
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsShortenMode), nameof(IsBatchMode), nameof(IsExpandMode), nameof(SelectedModeChoice))]
+    public partial AppMode Mode { get; set; }
+
+    public bool IsShortenMode => Mode == AppMode.Shorten;
+    public bool IsBatchMode => Mode == AppMode.Batch;
+    public bool IsExpandMode => Mode == AppMode.Expand;
+
+    public Choice<AppMode> SelectedModeChoice
+    {
+        get => ModeChoices.First(c => c.Value == Mode);
+        set { if (value is not null) Mode = value.Value; }
+    }
 
     // ---- input ----
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ShortenCommand))]
-    [NotifyPropertyChangedFor(nameof(InputHint), nameof(HasInput))]
+    [NotifyPropertyChangedFor(nameof(InputHint), nameof(HasInput), nameof(InputLooksShort))]
     public partial string InputUrl { get; set; } = "";
 
     public bool HasInput => !string.IsNullOrEmpty(InputUrl);
+
+    /// <summary>The input is already a short link (bit.ly, t.co …), so offer to expand it instead.</summary>
+    public bool InputLooksShort => InputHint is null && ShortLinks.IsKnownShortLink(InputUrl) && !HasResult;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AliasHint))]
@@ -66,9 +123,11 @@ public partial class MainViewModel : ObservableObject
     public partial string Alias { get; set; } = "";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AliasHint), nameof(AliasSupported), nameof(AliasPrefix))]
+    [NotifyPropertyChangedFor(nameof(AliasHint), nameof(AliasSupported), nameof(AliasPrefix), nameof(SelectedProviderDescription))]
     [NotifyCanExecuteChangedFor(nameof(ShortenCommand))]
     public partial IShortenerProvider SelectedProvider { get; set; }
+
+    public string SelectedProviderDescription => Loc.Instance[$"Service.{SelectedProvider.Id}"];
 
     [ObservableProperty]
     public partial bool AutoFallback { get; set; } = true;
@@ -77,7 +136,24 @@ public partial class MainViewModel : ObservableObject
     public partial bool CopyAutomatically { get; set; } = true;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedThemeChoice))]
     public partial string Theme { get; set; } = "System";
+
+    public Choice<string> SelectedThemeChoice
+    {
+        get => ThemeChoices.FirstOrDefault(c => c.Value == Theme) ?? ThemeChoices[0];
+        set { if (value is not null) Theme = value.Value; }
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedLanguageChoice))]
+    public partial string Language { get; set; } = Loc.SystemCode;
+
+    public Choice<string> SelectedLanguageChoice
+    {
+        get => LanguageChoices.FirstOrDefault(c => c.Value == Language) ?? LanguageChoices[0];
+        set { if (value is not null) Language = value.Value; }
+    }
 
     public bool AliasSupported => SelectedProvider.SupportsCustomAlias;
     public string AliasPrefix => SelectedProvider.DisplayName.ToLowerInvariant() + "/";
@@ -85,11 +161,13 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Live hint under the URL box; null while the input is empty or fine.</summary>
     public string? InputHint =>
         string.IsNullOrWhiteSpace(InputUrl) ? null
-        : UrlValidator.TryNormalize(InputUrl, out _, out var error) ? null
-        : error;
+        : UrlValidator.TryNormalize(InputUrl, out _, out UrlProblem problem) ? null
+        : Messages.Url(problem).ToString();
 
     public string? AliasHint =>
-        UseAlias && AliasSupported && !string.IsNullOrWhiteSpace(Alias) ? SelectedProvider.ValidateAlias(Alias.Trim()) : null;
+        UseAlias && AliasSupported && !string.IsNullOrWhiteSpace(Alias) && SelectedProvider.CheckAlias(Alias.Trim()) is { } problem
+            ? Messages.Alias(SelectedProvider, problem).ToString()
+            : null;
 
     // ---- state / result ----
 
@@ -97,14 +175,11 @@ public partial class MainViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ShortenCommand))]
     public partial bool IsBusy { get; set; }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasError))]
-    public partial string? ErrorMessage { get; set; }
-
-    public bool HasError => ErrorMessage is not null;
+    public string? ErrorMessage => _error?.ToString();
+    public bool HasError => _error is not null;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasResult), nameof(ShortDisplay))]
+    [NotifyPropertyChangedFor(nameof(HasResult), nameof(ShortDisplay), nameof(InputLooksShort))]
     [NotifyCanExecuteChangedFor(nameof(CopyResultCommand), nameof(OpenResultCommand), nameof(ShareResultCommand))]
     public partial string? ShortUrl { get; set; }
 
@@ -113,8 +188,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public partial string? ResultLongUrl { get; set; }
 
-    [ObservableProperty]
-    public partial string? ResultNote { get; set; }
+    public string? ResultNote => _resultNote?.ToString();
 
     [ObservableProperty]
     public partial byte[]? QrCodePng { get; set; }
@@ -149,12 +223,14 @@ public partial class MainViewModel : ObservableObject
     {
         var settings = await _storage.LoadSettingsAsync();
         _loadingSettings = true;
-        SelectedProvider = _shortener.Find(settings.PreferredProviderId) ?? Providers[0];
+        SelectedProvider = Shortener.Find(settings.PreferredProviderId) ?? Providers[0];
         AutoFallback = settings.AutoFallback;
         CopyAutomatically = settings.CopyAutomatically;
-        Theme = Themes.Contains(settings.Theme) ? settings.Theme : "System";
+        Theme = ThemeChoices.Any(c => c.Value == settings.Theme) ? settings.Theme : "System";
+        Language = LanguageChoices.Any(c => c.Value == settings.Language) ? settings.Language : Loc.SystemCode;
         _loadingSettings = false;
-        _platform.SetTheme(Theme);
+        Platform.SetTheme(Theme);
+        Loc.Instance.SetLanguage(Language);
 
         var entries = await _storage.LoadHistoryAsync();
         _allHistory.Clear();
@@ -162,10 +238,24 @@ public partial class MainViewModel : ObservableObject
         RefreshHistoryView();
     }
 
-    /// <summary>Text shared into the app from another app (Android "Share → URL Shortener"): fill in and shorten right away.</summary>
+    /// <summary>
+    /// Text shared into the app from another app (Android "Share → URL Shortener").
+    /// A short link gets expanded; anything else gets shortened right away.
+    /// </summary>
     public async Task ReceiveSharedTextAsync(string text)
     {
-        InputUrl = UrlValidator.ExtractUrl(text);
+        var url = UrlValidator.ExtractUrl(text);
+        if (ShortLinks.IsKnownShortLink(url))
+        {
+            Mode = AppMode.Expand;
+            Expand.Input = url;
+            if (Expand.ExpandCommand.CanExecute(null))
+                await Expand.ExpandCommand.ExecuteAsync(null);
+            return;
+        }
+
+        Mode = AppMode.Shorten;
+        InputUrl = url;
         UseAlias = false;
         if (ShortenCommand.CanExecute(null))
             await ShortenCommand.ExecuteAsync(null);
@@ -174,16 +264,35 @@ public partial class MainViewModel : ObservableObject
     partial void OnSelectedProviderChanged(IShortenerProvider value) => SaveSettings();
     partial void OnAutoFallbackChanged(bool value) => SaveSettings();
     partial void OnCopyAutomaticallyChanged(bool value) => SaveSettings();
-    partial void OnInputUrlChanged(string value) => ErrorMessage = null;
-    partial void OnAliasChanged(string value) => ErrorMessage = null;
+    partial void OnInputUrlChanged(string value) => SetError(null);
+    partial void OnAliasChanged(string value) => SetError(null);
 
     partial void OnThemeChanged(string value)
     {
-        _platform.SetTheme(value);
+        Platform.SetTheme(value);
+        SaveSettings();
+    }
+
+    partial void OnLanguageChanged(string value)
+    {
+        if (_loadingSettings) return;
+        Loc.Instance.SetLanguage(value);
         SaveSettings();
     }
 
     partial void OnHistoryFilterChanged(string value) => RefreshHistoryView();
+
+    private void OnLanguageChanged()
+    {
+        foreach (var c in ModeChoices) c.Refresh();
+        foreach (var c in ThemeChoices) c.Refresh();
+        LanguageChoices[0].Refresh();
+        foreach (var item in _allHistory) item.Refresh();
+        Batch.RefreshText();
+        Expand.RefreshText();
+        // Everything computed from translated strings (hints, errors, about text, direction …).
+        OnPropertyChanged(string.Empty);
+    }
 
     private void SaveSettings()
     {
@@ -194,6 +303,7 @@ public partial class MainViewModel : ObservableObject
             AutoFallback = AutoFallback,
             CopyAutomatically = CopyAutomatically,
             Theme = Theme,
+            Language = Language,
         });
     }
 
@@ -205,26 +315,27 @@ public partial class MainViewModel : ObservableObject
     private async Task ShortenAsync(CancellationToken cancellationToken)
     {
         IsBusy = true;
-        ErrorMessage = null;
+        SetError(null);
         ShortUrl = null; // hide the old result so the new one animates in
         ShowQr = false;
         try
         {
             var alias = UseAlias && AliasSupported ? Alias : null;
-            var outcome = await _shortener.ShortenAsync(InputUrl, SelectedProvider.Id, alias, AutoFallback, cancellationToken);
+            var outcome = await Shortener.ShortenAsync(InputUrl, SelectedProvider.Id, alias, AutoFallback, cancellationToken);
 
             if (!outcome.IsSuccess)
             {
                 if (outcome.Final.Failure != FailureKind.Cancelled)
-                    ErrorMessage = outcome.Final.Error ?? "Something went wrong.";
+                    SetError(Messages.Failure(outcome.Final, Shortener));
                 return;
             }
 
             var shortUrl = outcome.Final.ShortUrl!;
             ResultLongUrl = outcome.LongUrl!.AbsoluteUri;
-            ResultNote = outcome.UsedFallback
-                ? $"{SelectedProvider.DisplayName} wasn't available — made with {_shortener.Find(outcome.Final.ProviderId)?.DisplayName}."
+            _resultNote = outcome.UsedFallback
+                ? new LocalizedText("Result.Fallback", SelectedProvider.DisplayName, Shortener.Find(outcome.Final.ProviderId)?.DisplayName)
                 : null;
+            OnPropertyChanged(nameof(ResultNote));
             QrCodePng = QrCodeGenerator.CreatePng(shortUrl);
             ShortUrl = shortUrl;
             InputUrl = ResultLongUrl;
@@ -233,7 +344,7 @@ public partial class MainViewModel : ObservableObject
 
             if (CopyAutomatically)
             {
-                await _platform.CopyTextAsync(shortUrl);
+                await Platform.CopyTextAsync(shortUrl);
                 FlashCopied();
             }
         }
@@ -246,30 +357,40 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task PasteAsync()
     {
-        var text = await _platform.GetClipboardTextAsync();
+        var text = await Platform.GetClipboardTextAsync();
         if (!string.IsNullOrWhiteSpace(text))
             InputUrl = UrlValidator.ExtractUrl(text);
         else
-            ShowToast("Clipboard is empty");
+            ShowToast(Loc.Instance["Toast.ClipboardEmpty"]);
+    }
+
+    /// <summary>The input is a short link: switch to Expand and follow it.</summary>
+    [RelayCommand]
+    private async Task ExpandInputAsync()
+    {
+        Mode = AppMode.Expand;
+        Expand.Input = InputUrl;
+        if (Expand.ExpandCommand.CanExecute(null))
+            await Expand.ExpandCommand.ExecuteAsync(null);
     }
 
     [RelayCommand(CanExecute = nameof(HasResult))]
     private async Task CopyResultAsync()
     {
         if (ShortUrl is null) return;
-        await _platform.CopyTextAsync(ShortUrl);
+        await Platform.CopyTextAsync(ShortUrl);
         FlashCopied();
     }
 
     [RelayCommand(CanExecute = nameof(HasResult))]
-    private Task OpenResultAsync() => ShortUrl is null ? Task.CompletedTask : OpenAsync(ShortUrl);
+    private Task OpenResultAsync() => ShortUrl is null ? Task.CompletedTask : OpenUrlAsync(ShortUrl);
 
     private bool CanShareResult() => HasResult && CanShare;
 
     [RelayCommand(CanExecute = nameof(CanShareResult))]
     private void ShareResult()
     {
-        if (ShortUrl is not null) _platform.Share(ShortUrl);
+        if (ShortUrl is not null) Platform.Share(ShortUrl);
     }
 
     [RelayCommand]
@@ -285,18 +406,18 @@ public partial class MainViewModel : ObservableObject
     private async Task CopyHistoryItemAsync(HistoryItemViewModel? item)
     {
         if (item is null) return;
-        await _platform.CopyTextAsync(item.ShortUrl);
-        ShowToast($"Copied {item.ShortDisplay}");
+        await Platform.CopyTextAsync(item.ShortUrl);
+        ShowToast(Loc.Instance.Format("Toast.Copied", item.ShortDisplay));
     }
 
     [RelayCommand]
     private Task OpenHistoryItemAsync(HistoryItemViewModel? item) =>
-        item is null ? Task.CompletedTask : OpenAsync(item.ShortUrl);
+        item is null ? Task.CompletedTask : OpenUrlAsync(item.ShortUrl);
 
     [RelayCommand]
     private void ShareHistoryItem(HistoryItemViewModel? item)
     {
-        if (item is not null && CanShare) _platform.Share(item.ShortUrl);
+        if (item is not null && CanShare) Platform.Share(item.ShortUrl);
     }
 
     [RelayCommand]
@@ -316,7 +437,7 @@ public partial class MainViewModel : ObservableObject
         HistoryFilter = "";
         RefreshHistoryView();
         PersistHistory();
-        ShowToast(count == 1 ? "Removed 1 link" : $"Removed {count} links");
+        ShowToast(Loc.Instance.Format("Toast.Removed", count));
     }
 
     [RelayCommand]
@@ -324,31 +445,24 @@ public partial class MainViewModel : ObservableObject
     {
         InputUrl = "";
         Alias = "";
-        ErrorMessage = null;
+        SetError(null);
         ShortUrl = null;
         ResultLongUrl = null;
-        ResultNote = null;
+        _resultNote = null;
+        OnPropertyChanged(nameof(ResultNote));
         QrCodePng = null;
         ShowQr = false;
     }
 
-    // ---- helpers ----
+    // ---- shared with the Batch and Expand view models ----
 
-    private async Task OpenAsync(string url)
+    internal async Task OpenUrlAsync(string url)
     {
-        if (!await _platform.OpenUrlAsync(url))
-            ShowToast("Couldn't open the browser");
+        if (!await Platform.OpenUrlAsync(url))
+            ShowToast(Loc.Instance["Toast.CantOpen"]);
     }
 
-    private async void FlashCopied()
-    {
-        var version = ++_copiedVersion;
-        JustCopied = true;
-        await Task.Delay(FeedbackDuration);
-        if (version == _copiedVersion) JustCopied = false;
-    }
-
-    private async void ShowToast(string message)
+    internal async void ShowToast(string message)
     {
         var version = ++_toastVersion;
         ToastMessage = message;
@@ -357,7 +471,7 @@ public partial class MainViewModel : ObservableObject
         if (version == _toastVersion) IsToastVisible = false;
     }
 
-    private void AddToHistory(HistoryEntry entry)
+    internal void AddToHistory(HistoryEntry entry)
     {
         _allHistory.RemoveAll(h => string.Equals(h.ShortUrl, entry.ShortUrl, StringComparison.OrdinalIgnoreCase));
         _allHistory.Insert(0, new HistoryItemViewModel(entry));
@@ -365,6 +479,31 @@ public partial class MainViewModel : ObservableObject
             _allHistory.RemoveRange(AppStorage.MaxHistory, _allHistory.Count - AppStorage.MaxHistory);
         RefreshHistoryView();
         PersistHistory();
+    }
+
+    /// <summary>"Shorten this" from the Expand view: take its destination over to the Shorten view.</summary>
+    internal void StartShortening(string url)
+    {
+        Mode = AppMode.Shorten;
+        ClearInput();
+        InputUrl = url;
+    }
+
+    // ---- helpers ----
+
+    private void SetError(LocalizedText? error)
+    {
+        _error = error;
+        OnPropertyChanged(nameof(ErrorMessage));
+        OnPropertyChanged(nameof(HasError));
+    }
+
+    private async void FlashCopied()
+    {
+        var version = ++_copiedVersion;
+        JustCopied = true;
+        await Task.Delay(FeedbackDuration);
+        if (version == _copiedVersion) JustCopied = false;
     }
 
     private void PersistHistory() => _ = _storage.SaveHistoryAsync(_allHistory.Select(h => h.Entry).ToList());
@@ -381,7 +520,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(NoSearchMatches));
     }
 
-    private sealed class NullPlatformServices : IPlatformServices
+    internal sealed class NullPlatformServices : IPlatformServices
     {
         public Task CopyTextAsync(string text) => Task.CompletedTask;
         public Task<string?> GetClipboardTextAsync() => Task.FromResult<string?>(null);

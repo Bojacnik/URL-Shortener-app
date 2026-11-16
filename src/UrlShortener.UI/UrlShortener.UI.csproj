@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <!-- UI translations: one JSON table per language, loaded by Localization/Loc.cs -->
+    <EmbeddedResource Include="i18n\*.json" LogicalName="i18n.%(Filename).json" />
     <InternalsVisibleTo Include="UrlShortener.Tests" />
   </ItemGroup>
 

@@ -11,6 +11,8 @@ public sealed record AppSettings
     public bool AutoFallback { get; init; } = true;
     public bool CopyAutomatically { get; init; } = true;
     public string Theme { get; init; } = "System";
+    /// <summary>"system" or a language code such as "cs".</summary>
+    public string Language { get; init; } = "system";
 }
 
 [JsonSerializable(typeof(List<HistoryEntry>))]

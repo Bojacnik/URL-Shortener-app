@@ -15,12 +15,16 @@ public partial class App : Application
     private static string? _pendingSharedText;
 
     private HttpClient? _http;
+    private HttpClient? _expanderHttp;
     private MainViewModel? _viewModel;
     private Control? _currentView;
     private Task? _initialized;
 
     /// <summary>Set by platforms that have a system share sheet (Android).</summary>
     public static Action<string>? ShareHandler { get; set; }
+
+    /// <summary>Desktop "--quick": show only the clipboard pop-up instead of the main window.</summary>
+    public static bool QuickMode { get; set; }
 
     /// <summary>
     /// Called by the Android activity when another app shares text to us.
@@ -44,10 +48,22 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         _http = ShortenerService.CreateHttpClient();
-        _viewModel = new MainViewModel(
-            ShortenerService.CreateDefault(_http),
-            new AppStorage(),
-            new AvaloniaPlatformServices(() => TopLevel.GetTopLevel(_currentView)));
+        var shortener = ShortenerService.CreateDefault(_http);
+        var storage = new AppStorage();
+        var platform = new AvaloniaPlatformServices(() => TopLevel.GetTopLevel(_currentView));
+
+        if (QuickMode && ApplicationLifetime is IClassicDesktopStyleApplicationLifetime quick)
+        {
+            var popup = new QuickWindow { DataContext = new QuickViewModel(shortener, storage, platform) };
+            _currentView = popup;
+            quick.MainWindow = popup;
+            quick.Exit += (_, _) => _http?.Dispose();
+            base.OnFrameworkInitializationCompleted();
+            return;
+        }
+
+        _expanderHttp = LinkExpander.CreateHttpClient();
+        _viewModel = new MainViewModel(shortener, storage, platform, new LinkExpander(_expanderHttp));
 
         switch (ApplicationLifetime)
         {
@@ -55,7 +71,11 @@ public partial class App : Application
                 var window = new MainWindow { DataContext = _viewModel };
                 _currentView = window.MainView;
                 desktop.MainWindow = window;
-                desktop.Exit += (_, _) => _http?.Dispose();
+                desktop.Exit += (_, _) =>
+                {
+                    _http?.Dispose();
+                    _expanderHttp?.Dispose();
+                };
                 break;
 
             // Android: the activity can be recreated (rotation, theme change), so a fresh view is made

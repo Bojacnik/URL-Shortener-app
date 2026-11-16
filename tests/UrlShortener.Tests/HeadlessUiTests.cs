@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using UrlShortener.Core;
+using UrlShortener.UI.Localization;
 using UrlShortener.UI.ViewModels;
 using UrlShortener.UI.Views;
 
@@ -25,9 +26,22 @@ public class TestAppBuilder
 public class HeadlessUiTests : IDisposable
 {
     private readonly TempDir _dir = new();
+    private readonly List<Window> _open = [];
+
+    private void Open(Window window)
+    {
+        window.Show();
+        _open.Add(window);
+    }
+
     public void Dispose()
     {
-        if (Application.Current is { } app) app.RequestedThemeVariant = ThemeVariant.Default;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            foreach (var w in _open) w.Close();
+            if (Application.Current is { } app) app.RequestedThemeVariant = ThemeVariant.Default;
+            Loc.Instance.SetLanguage("en");
+        });
         _dir.Dispose();
     }
 
@@ -64,7 +78,7 @@ public class HeadlessUiTests : IDisposable
         var vm = CreateVm(http);
         await vm.InitializeAsync();
         var window = new MainWindow { DataContext = vm };
-        window.Show();
+        Open(window);
 
         var box = window.MainView.FindControl<TextBox>("UrlBox")!;
         box.Focus();
@@ -95,7 +109,7 @@ public class HeadlessUiTests : IDisposable
         await vm.ShortenCommand.ExecuteAsync(null);
 
         var window = new MainWindow { DataContext = vm, Width = 580, Height = 1180 };
-        window.Show();
+        Open(window);
         await Settle();
         SaveScreenshot(window, "desktop-light.png");
 
@@ -113,7 +127,7 @@ public class HeadlessUiTests : IDisposable
 
         // Empty start screen on a typical Android phone (412 × 915 dp).
         var phone = new Window { Width = 412, Height = 915, Content = new MainView { DataContext = vm } };
-        phone.Show();
+        Open(phone);
         await Settle();
         SaveScreenshot(phone, "phone-start.png");
         phone.Close();
@@ -123,7 +137,7 @@ public class HeadlessUiTests : IDisposable
         vm.UseAlias = true;
         vm.Alias = "ab";
         var small = new Window { Width = 360, Height = 800, Content = new MainView { DataContext = vm } };
-        small.Show();
+        Open(small);
         await Settle();
         SaveScreenshot(small, "phone-validation.png");
     }
@@ -138,9 +152,98 @@ public class HeadlessUiTests : IDisposable
         Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
 
         var phone = new Window { Width = 412, Height = 915, Content = new MainView { DataContext = vm } };
-        phone.Show();
+        Open(phone);
         await Settle();
         SaveScreenshot(phone, "phone-dark-result.png");
+    }
+
+    private static HttpResponseMessage Redirect(string to)
+    {
+        var r = new HttpResponseMessage(HttpStatusCode.MovedPermanently);
+        r.Headers.Location = new Uri(to);
+        return r;
+    }
+
+    [AvaloniaFact]
+    public async Task Screenshot_batch_mode()
+    {
+        var n = 0;
+        var http = new FakeHttpHandler().On("is.gd", _ =>
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent($$"""{ "shorturl": "https://is.gd/team{{++n}}" }""") });
+        var vm = CreateVm(http);
+        vm.Batch.Spacing = TimeSpan.Zero;
+        await vm.InitializeAsync();
+        vm.Mode = AppMode.Batch;
+        vm.Batch.Input = "https://github.com/Bojacnik/URL-Shortener-app\nhttps://docs.avaloniaui.net/docs/welcome\nnot a link\nhttps://learn.microsoft.com/dotnet/";
+        await vm.Batch.ShortenAllCommand.ExecuteAsync(null);
+
+        var window = new MainWindow { DataContext = vm, Width = 580, Height = 1300 };
+        Open(window);
+        await Settle();
+        Assert.True(window.MainView.FindControl<Border>("BatchResults")!.IsVisible);
+        Assert.Equal(4, window.MainView.FindControl<ItemsControl>("BatchList")!.ItemCount);
+        SaveScreenshot(window, "batch.png");
+    }
+
+    [AvaloniaFact]
+    public async Task Screenshot_expand_mode()
+    {
+        var http = new FakeHttpHandler()
+            .On("bit.ly", _ => Redirect("https://t.co/redirect"))
+            .On("t.co", _ => Redirect("https://www.example.com/promo/spring-sale?utm_source=newsletter"))
+            .On("www.example.com", _ => new HttpResponseMessage(HttpStatusCode.OK));
+        var vm = new MainViewModel(ShortenerService.CreateDefault(http.Client()), new AppStorage(_dir.Path), new FakePlatform(), new LinkExpander(http.Client()));
+        await vm.InitializeAsync();
+        vm.Mode = AppMode.Expand;
+        vm.Expand.Input = "https://bit.ly/4spring";
+        await vm.Expand.ExpandCommand.ExecuteAsync(null);
+        vm.Expand.ShowPath = true;
+
+        var window = new MainWindow { DataContext = vm, Width = 580, Height = 1000 };
+        Open(window);
+        await Settle();
+        Assert.True(window.MainView.FindControl<Border>("ExpandResult")!.IsVisible);
+        SaveScreenshot(window, "expand.png");
+    }
+
+    [AvaloniaFact]
+    public async Task Screenshot_quick_popup()
+    {
+        var http = new FakeHttpHandler().On("is.gd", HttpStatusCode.OK, """{ "shorturl": "https://is.gd/quick1" }""");
+        var vm = new QuickViewModel(ShortenerService.CreateDefault(http.Client()), new AppStorage(_dir.Path),
+            new FakePlatform { Clipboard = "https://github.com/Bojacnik" })
+        { DoneDelay = TimeSpan.FromSeconds(30) };
+        _ = vm.RunAsync();
+        await WaitFor(() => vm.IsDone);
+
+        var window = new QuickWindow { DataContext = vm };
+        Open(window);
+        await Settle();
+        SaveScreenshot(window, "quick.png");
+    }
+
+    [AvaloniaTheory]
+    [InlineData("cs")]
+    [InlineData("ja")]
+    [InlineData("ar")]
+    [InlineData("hi")]
+    [InlineData("de")]
+    public async Task Screenshot_languages(string language)
+    {
+        var http = new FakeHttpHandler().On("is.gd", HttpStatusCode.OK, """{ "shorturl": "https://is.gd/lang" }""");
+        var storage = new AppStorage(_dir.Path);
+        await storage.SaveHistoryAsync([new HistoryEntry("https://www.wikipedia.org/", "https://da.gd/wiki", "da.gd", DateTimeOffset.Now.AddHours(-5))]);
+        await storage.SaveSettingsAsync(new AppSettings { Language = language });
+        var vm = CreateVm(http, new FakePlatform { CanShare = true });
+        await vm.InitializeAsync();
+        vm.InputUrl = "https://github.com/Bojacnik/URL-Shortener-app";
+        await vm.ShortenCommand.ExecuteAsync(null);
+
+        Assert.Equal(language, Loc.Instance.Language.Code);
+        var phone = new Window { Width = 412, Height = 1050, Content = new MainView { DataContext = vm } };
+        Open(phone);
+        await Settle();
+        SaveScreenshot(phone, $"lang-{language}.png");
     }
 
     private static void SaveScreenshot(Window window, string name)

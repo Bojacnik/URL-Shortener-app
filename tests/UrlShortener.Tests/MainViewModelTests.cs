@@ -58,7 +58,7 @@ public class MainViewModelTests : IDisposable
         await vm.ShortenCommand.ExecuteAsync(null);
 
         Assert.True(vm.HasError);
-        Assert.Contains("valid URL", vm.ErrorMessage);
+        Assert.Equal("is.gd refused this link.", vm.ErrorMessage);
         Assert.Null(vm.ShortUrl);
         Assert.Empty(vm.History);
     }

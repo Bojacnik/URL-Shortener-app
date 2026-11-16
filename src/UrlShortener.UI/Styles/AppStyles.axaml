@@ -94,6 +94,32 @@
         <Setter Property="Foreground" Value="{DynamicResource Danger}" />
     </Style>
 
+    <Style Selector="Border.banner.info">
+        <Setter Property="Background" Value="{DynamicResource AccentSoft}" />
+    </Style>
+    <Style Selector="Border.banner.info PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+    </Style>
+    <Style Selector="Border.banner.info TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    </Style>
+    <Style Selector="Border.banner.warn">
+        <Setter Property="Background" Value="{DynamicResource WarnSoft}" />
+    </Style>
+    <Style Selector="Border.banner.warn PathIcon">
+        <Setter Property="Foreground" Value="{DynamicResource Warn}" />
+    </Style>
+    <Style Selector="Border.banner.warn TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    </Style>
+
+    <!-- Segmented control track -->
+    <Style Selector="Border.segments">
+        <Setter Property="Background" Value="{DynamicResource SurfaceAlt}" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
     <!-- ===== Text boxes ===== -->
     <Style Selector="TextBox.big">
         <Setter Property="MinHeight" Value="54" />
@@ -117,6 +143,15 @@
     </Style>
     <Style Selector="TextBox.big.invalid /template/ Border#PART_BorderElement">
         <Setter Property="BorderBrush" Value="{DynamicResource Danger}" />
+    </Style>
+    <Style Selector="TextBox.multiline">
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="MinHeight" Value="150" />
+        <Setter Property="MaxHeight" Value="260" />
+        <Setter Property="FontSize" Value="14" />
     </Style>
     <Style Selector="TextBox.compact">
         <Setter Property="MinHeight" Value="42" />
@@ -325,6 +360,12 @@
         <Setter Property="RenderTransform" Value="rotate(180deg)" />
     </Style>
 
+    <!-- Right-to-left languages mirror the layout. Icons keep their shape (a check mark or a copy icon
+         doesn't change meaning), except arrows marked .flip, which should point the other way. -->
+    <Style Selector="PathIcon:not(.flip)">
+        <Setter Property="FlowDirection" Value="LeftToRight" />
+    </Style>
+
     <!-- ===== History rows ===== -->
     <Style Selector="Button.row">
         <Setter Property="Background" Value="{DynamicResource Surface}" />
@@ -347,6 +388,11 @@
     <Style Selector="Button.row:pointerover /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
+    </Style>
+    <!-- Rows that can't be clicked (failed batch items) keep their normal look instead of turning grey -->
+    <Style Selector="Button.row:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Stroke}" />
     </Style>
     <Style Selector="Button.row:pressed /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource SurfaceAlt}" />

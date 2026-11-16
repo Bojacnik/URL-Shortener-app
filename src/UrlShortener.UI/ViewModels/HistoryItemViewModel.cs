@@ -1,8 +1,10 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using UrlShortener.Core;
+using UrlShortener.UI.Localization;
 
 namespace UrlShortener.UI.ViewModels;
 
-public sealed class HistoryItemViewModel(HistoryEntry entry)
+public sealed class HistoryItemViewModel(HistoryEntry entry) : ObservableObject
 {
     public HistoryEntry Entry { get; } = entry;
     public string ShortUrl => Entry.ShortUrl;
@@ -42,6 +44,9 @@ public sealed class HistoryItemViewModel(HistoryEntry entry)
         }
     }
 
+    /// <summary>Re-reads the translated "… ago" text after a language change.</summary>
+    public void Refresh() => OnPropertyChanged(nameof(When));
+
     public bool Matches(string? filter) =>
         string.IsNullOrWhiteSpace(filter)
         || ShortUrl.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase)
@@ -55,11 +60,12 @@ public sealed class HistoryItemViewModel(HistoryEntry entry)
 
     internal static string FormatAge(DateTimeOffset then, DateTimeOffset now)
     {
+        var loc = Loc.Instance;
         var age = now - then;
-        if (age < TimeSpan.FromMinutes(1)) return "just now";
-        if (age < TimeSpan.FromHours(1)) return $"{(int)age.TotalMinutes} min ago";
-        if (age < TimeSpan.FromDays(1)) return $"{(int)age.TotalHours} h ago";
-        if (age < TimeSpan.FromDays(7)) return $"{(int)age.TotalDays} d ago";
-        return then.LocalDateTime.ToString("d MMM yyyy");
+        if (age < TimeSpan.FromMinutes(1)) return loc["Age.Now"];
+        if (age < TimeSpan.FromHours(1)) return loc.Format("Age.Minutes", (int)age.TotalMinutes);
+        if (age < TimeSpan.FromDays(1)) return loc.Format("Age.Hours", (int)age.TotalHours);
+        if (age < TimeSpan.FromDays(7)) return loc.Format("Age.Days", (int)age.TotalDays);
+        return then.LocalDateTime.ToString("d MMM yyyy", loc.Culture);
     }
 }

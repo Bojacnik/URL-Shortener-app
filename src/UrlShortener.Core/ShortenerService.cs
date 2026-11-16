@@ -28,7 +28,7 @@ public sealed class ShortenerService
     public static HttpClient CreateHttpClient()
     {
         var http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("UrlShortener/2.0 (+https://github.com/Bojacnik/URL-Shortener-app)");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("UrlShortener/2.2 (+https://github.com/Bojacnik/URL-Shortener-app)");
         return http;
     }
 
@@ -45,7 +45,7 @@ public sealed class ShortenerService
         var preferred = Find(preferredProviderId) ?? Providers[0];
         alias = string.IsNullOrWhiteSpace(alias) ? null : alias.Trim();
 
-        if (!UrlValidator.TryNormalize(input, out var longUrl, out var urlError))
+        if (!UrlValidator.TryNormalize(input, out var longUrl, out string? urlError))
         {
             var fail = ShortenResult.Fail(preferred.Id, FailureKind.InvalidUrl, urlError);
             return new ShortenOutcome(fail, [fail], null);
