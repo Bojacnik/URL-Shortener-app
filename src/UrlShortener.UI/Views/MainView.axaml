@@ -635,7 +635,7 @@
         </ScrollViewer>
 
         <!-- ===== Toast ===== -->
-        <Border Classes="toast" Classes.shown="{Binding IsToastVisible}"
+        <Border x:Name="Toast" Classes="toast" Classes.shown="{Binding IsToastVisible}"
                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="20,0,20,28">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <PathIcon Data="{StaticResource Icon.Check}" Width="15" Height="15" />

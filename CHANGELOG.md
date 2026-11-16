@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-11-16
+
+### Fixed
+- Android: an empty band under the status bar. The app now draws edge to edge (the background continues behind the status and navigation bars), pads its content by the system bars only once, and keeps the status-bar icons readable in both light and dark themes.
+
 ## [2.2.0] - 2026-11-16
 
 ### Added
@@ -58,7 +63,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 - First version: a WinForms app that shortened links through the CleanURI API.
 
-[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Bojacnik/URL-Shortener-app/releases/tag/v2.0.0
