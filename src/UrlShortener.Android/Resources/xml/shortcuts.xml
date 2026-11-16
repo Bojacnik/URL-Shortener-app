@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Long-press the app icon → "Shorten clipboard". -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+  <shortcut
+      android:shortcutId="shorten_clipboard"
+      android:enabled="true"
+      android:icon="@drawable/ic_shortcut"
+      android:shortcutShortLabel="@string/shorten_clipboard"
+      android:shortcutLongLabel="@string/shorten_clipboard_long">
+    <intent
+        android:action="android.intent.action.VIEW"
+        android:targetPackage="com.bojacnik.urlshortener"
+        android:targetClass="com.bojacnik.urlshortener.ClipboardActivity" />
+  </shortcut>
+</shortcuts>

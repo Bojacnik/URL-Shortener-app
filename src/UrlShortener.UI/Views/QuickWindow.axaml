@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:UrlShortener.UI.ViewModels"
+        x:Class="UrlShortener.UI.Views.QuickWindow"
+        x:DataType="vm:QuickViewModel"
+        Title="URL Shortener"
+        Icon="/Assets/app.png"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        Topmost="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent">
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding CloseCommand}" />
+        <KeyBinding Gesture="Enter" Command="{Binding CloseCommand}" />
+    </Window.KeyBindings>
+
+    <Border Classes="card reveal" Margin="18" Padding="18,16" Width="380" CornerRadius="20"
+            PointerPressed="OnCardPressed">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Panel Width="40" Height="40" VerticalAlignment="Center">
+                <Border CornerRadius="20" Background="{DynamicResource AccentSoft}" IsVisible="{Binding IsWorking}">
+                    <Arc Classes="spinner" Width="20" Height="20" StartAngle="0" SweepAngle="270"
+                         Stroke="{DynamicResource Accent}" StrokeThickness="2.5" StrokeLineCap="Round">
+                        <Arc.RenderTransform>
+                            <RotateTransform />
+                        </Arc.RenderTransform>
+                    </Arc>
+                </Border>
+                <Border Classes="pop" CornerRadius="20" Background="{DynamicResource SuccessSoft}" IsVisible="{Binding IsDone}">
+                    <PathIcon Data="{StaticResource Icon.Check}" Width="20" Height="20" Foreground="{DynamicResource Success}" />
+                </Border>
+                <Border Classes="pop" CornerRadius="20" Background="{DynamicResource DangerSoft}" IsVisible="{Binding IsFailed}">
+                    <PathIcon Data="{StaticResource Icon.Alert}" Width="20" Height="20" Foreground="{DynamicResource Danger}" />
+                </Border>
+            </Panel>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14.5" Foreground="{DynamicResource Ink}"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Detail}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentText}"
+                           IsVisible="{Binding IsDone}" FlowDirection="LeftToRight" />
+                <TextBlock Text="{Binding Detail}" Classes="muted" TextWrapping="Wrap"
+                           IsVisible="{Binding IsFailed}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

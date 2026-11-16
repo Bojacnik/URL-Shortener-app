@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/UrlShortener.Android/UrlShortener.Android.csproj" />
+    <Project Path="src/UrlShortener.Core/UrlShortener.Core.csproj" />
+    <Project Path="src/UrlShortener.Desktop/UrlShortener.Desktop.csproj" />
+    <Project Path="src/UrlShortener.UI/UrlShortener.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UrlShortener.Tests/UrlShortener.Tests.csproj" />
+  </Folder>
+</Solution>
