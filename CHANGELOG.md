@@ -5,6 +5,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-16
+
+### Added
+- **Pin links:** pinned links stay at the top of the history and survive "Clear all".
+- **Export and import history** as CSV, for backups or moving to another device. The file opens in Excel, LibreOffice and Google Sheets.
+- **Save the QR code** as a PNG image.
+- **Desktop clipboard suggestion:** when the window gets focus and a long link is on the clipboard, the app offers to shorten it with one click. Each link is offered only once.
+- **Update notice:** at most once a day, the app asks GitHub Releases whether a newer version exists. "Later" hides that version, and the check can be turned off in Settings.
+- **Android "Shorten link" in the text-selection menu:** select a link in any app and tap *Shorten link*. In editable fields the link is replaced with the short one; elsewhere the short link is copied.
+- **Android Quick Settings tile and launcher shortcut** (long-press the icon) that shorten the link on the clipboard.
+- Android launcher and menu labels in all 18 languages.
+- **Linux:** an app-menu entry (with a "Shorten clipboard" action), an icon, an `install.sh` per-user installer, and an AppImage.
+
+### Changed
+- **Smaller downloads:** desktop builds are trimmed and compressed (Linux: 100 MB → 24 MB), and Android releases ship one APK per CPU type (arm64: 47 MB → 25 MB).
+- **Release signing:** releases are signed with your own Android key from GitHub secrets, and the release workflow refuses to run without it. `tools/create-android-keystore.sh` sets the key up.
+- **Accessibility:** colours meet WCAG AA contrast in both themes, and every icon-only button has a screen-reader name.
+
 ## [2.2.2] - 2026-11-16
 
 ### Fixed
@@ -68,7 +86,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 - First version: a WinForms app that shortened links through the CleanURI API.
 
-[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.2...HEAD
+[Unreleased]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.2...v2.3.0
 [2.2.2]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Bojacnik/URL-Shortener-app/compare/v2.1.0...v2.2.0

@@ -1,53 +1,44 @@
 {
   "App.Title": "Pemendek URL",
   "App.Tagline": "Gratis · Tanpa akun · Riwayat pribadi",
-
   "Hero.TitleStart": "Jadikan tautan panjang ",
   "Hero.TitleAccent": "pendek.",
   "Hero.TitleEnd": "",
   "Hero.Subtitle": "Tempel tautan, pilih layanan, dan dapatkan tautan pendek yang rapi beserta kode QR.",
-
   "Mode.Shorten": "Pendekkan",
   "Mode.Batch": "Sekaligus",
   "Mode.Expand": "Bentangkan",
-
   "Input.Placeholder": "Tempel tautan panjang…",
   "Input.Paste": "Tempel",
   "Input.PasteTip": "Tempel dari papan klip",
   "Input.Clear": "Hapus",
   "Input.LooksShort": "Ini sepertinya sudah tautan pendek.",
   "Input.ExpandIt": "Lihat tujuannya",
-
   "Service.Label": "LAYANAN",
   "Service.is.gd": "Gratis, tanpa akun, beroperasi sejak 2009. Mendukung alias khusus.",
   "Service.tinyurl": "Pemendek tertua (2002). Gratis, tanpa akun. Mendukung alias khusus.",
   "Service.da.gd": "Sumber terbuka dan minimalis. Alias hingga 10 karakter.",
   "Service.v.gd": "Layanan saudara is.gd: menampilkan halaman pratinjau sebelum mengalihkan.",
-
   "Alias.Toggle": "Alias khusus",
   "Alias.Placeholder": "tautan_saya",
   "Alias.Length": "Alias {0} harus terdiri dari {1}–{2} karakter.",
   "Alias.Characters": "Gunakan hanya huruf, angka, dan _ pada alias.",
   "Alias.CharactersDash": "Gunakan hanya huruf, angka, - dan _ pada alias.",
   "Alias.NotSupported": "{0} tidak mendukung alias khusus.",
-
   "Url.Empty": "Masukkan tautan.",
   "Url.Spaces": "Tautan tidak boleh berisi spasi.",
   "Url.Invalid": "Itu sepertinya bukan tautan yang valid.",
   "Url.Scheme": "Hanya tautan http:// dan https:// yang bisa digunakan.",
   "Url.LocalAddress": "Alamat lokal dan alamat jaringan pribadi tidak bisa dipakai dengan layanan publik.",
   "Url.NoDomain": "Alamat harus memiliki nama domain lengkap, misalnya example.com.",
-
   "Shorten.Button": "Pendekkan tautan",
   "Shorten.Busy": "Memendekkan…",
-
   "Error.RateLimited": "{0} menerima terlalu banyak permintaan. Coba lagi dalam satu menit.",
   "Error.Service": "{0} sedang tidak berfungsi. Coba layanan lain.",
   "Error.Network": "Tidak dapat menghubungi {0}. Periksa koneksi internet Anda.",
   "Error.Rejected": "{0} menolak tautan ini.",
   "Error.AliasTaken": "Alias itu tidak tersedia di {0}. Coba yang lain.",
   "Error.Generic": "Terjadi kesalahan.",
-
   "Result.Label": "TAUTAN PENDEK ANDA",
   "Result.Copy": "Salin",
   "Result.Copied": "Disalin",
@@ -56,7 +47,6 @@
   "Result.QrCode": "Kode QR",
   "Result.ScanHint": "Pindai dengan kamera ponsel",
   "Result.Fallback": "{0} tidak tersedia, jadi {1} yang digunakan.",
-
   "Batch.Placeholder": "Tempel tautan, satu per baris",
   "Batch.Count": "Tautan: {0}",
   "Batch.Limit": "Maksimal {0} tautan sekaligus; baris tambahan dilewati.",
@@ -68,7 +58,6 @@
   "Batch.CopyTableTip": "Tautan panjang dan pendek dalam dua kolom, siap ditempel ke spreadsheet",
   "Batch.Clear": "Hapus",
   "Batch.Stop": "Hentikan",
-
   "Expand.Intro": "Periksa ke mana sebenarnya tautan pendek mengarah sebelum Anda membukanya.",
   "Expand.Placeholder": "Tempel tautan pendek…",
   "Expand.Button": "Bentangkan tautan",
@@ -83,7 +72,6 @@
   "Expand.Loop": "Dihentikan: tautan mengalihkan secara berputar.",
   "Expand.Failed": "Tidak dapat menjangkau tautan ini. Periksa alamat dan koneksi internet Anda.",
   "Expand.Shorten": "Pendekkan ini",
-
   "History.Title": "Tautan terbaru",
   "History.ClearAll": "Hapus semua",
   "History.Search": "Cari tautan Anda",
@@ -92,18 +80,15 @@
   "History.NoMatches": "Tidak ada tautan yang cocok dengan pencarian Anda.",
   "History.TapToCopy": "Ketuk untuk menyalin",
   "History.Remove": "Hapus",
-
   "Age.Now": "baru saja",
   "Age.Minutes": "{0} mnt lalu",
   "Age.Hours": "{0} jam lalu",
   "Age.Days": "{0} hr lalu",
-
   "Toast.Copied": "{0} disalin",
   "Toast.CopiedCount": "Tautan disalin: {0}",
   "Toast.ClipboardEmpty": "Papan klip kosong",
   "Toast.Removed": "Tautan dihapus: {0}",
   "Toast.CantOpen": "Tidak dapat membuka browser",
-
   "Settings.Title": "Pengaturan",
   "Settings.Appearance": "TAMPILAN",
   "Settings.Language": "BAHASA",
@@ -112,15 +97,34 @@
   "Settings.AutoCopy": "Salin tautan baru secara otomatis",
   "Settings.QuickTip": "Tips: di pengaturan sistem, beri pintasan keyboard untuk perintah \"UrlShortener --quick\" agar tautan di papan klip bisa dipendekkan dari aplikasi apa pun.",
   "Settings.About": "Versi {0} · Tautan dibuat oleh layanan publik gratis (is.gd, TinyURL, da.gd, v.gd). Riwayat tetap di perangkat ini.",
-
   "Theme.System": "Sistem",
   "Theme.Light": "Terang",
   "Theme.Dark": "Gelap",
-
   "Quick.Working": "Memendekkan tautan di papan klip…",
   "Quick.Done": "Tautan pendek disalin",
   "Quick.NoLink": "Tidak ada tautan di papan klip",
   "Quick.Failed": "Tidak dapat memendekkan tautan",
-
-  "Share.Chooser": "Bagikan tautan pendek"
+  "Share.Chooser": "Bagikan tautan pendek",
+  "Common.Dismiss": "Tutup",
+  "Clipboard.Suggest": "Pendekkan tautan di papan klip?",
+  "Clipboard.Use": "Pendekkan",
+  "Result.SaveQr": "Simpan kode QR",
+  "Toast.QrSaved": "Kode QR disimpan",
+  "History.Export": "Ekspor",
+  "History.ExportTip": "Simpan tautan Anda sebagai file CSV (bisa dibuka di Excel, LibreOffice, atau Google Spreadsheet)",
+  "History.Import": "Impor",
+  "History.ImportTip": "Tambahkan tautan dari file CSV yang diekspor aplikasi ini",
+  "History.Pin": "Sematkan di atas",
+  "History.Unpin": "Lepas sematan",
+  "History.ClearAllTip": "Tautan yang disematkan tetap disimpan",
+  "Toast.Exported": "Tautan diekspor: {0}",
+  "Toast.Imported": "Tautan diimpor: {0}",
+  "Toast.ImportFailed": "File itu tidak dapat dibaca sebagai riwayat tautan.",
+  "Update.Available": "Versi {0} tersedia.",
+  "Update.Download": "Unduh",
+  "Update.Later": "Nanti",
+  "Settings.UpdateCheck": "Periksa pembaruan",
+  "Android.ShortenLink": "Pendekkan tautan",
+  "Android.ShortenClipboard": "Pendekkan papan klip",
+  "Android.ShortenClipboardLong": "Pendekkan tautan di papan klip"
 }

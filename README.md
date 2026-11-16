@@ -20,11 +20,15 @@ A link shortener for **Windows, Linux, macOS and Android**, built with [Avalonia
 - **Batch:** paste up to 50 links, one per line, and shorten them all. Copy the results as a list, or as a two-column table that pastes straight into Excel, LibreOffice or Google Sheets.
 - **Expand:** paste a short link to see where it really goes before you open it. Redirects are followed without loading any page, the whole path is shown, and following stops before any local or private network address.
 - **18 languages:** English, Español, Čeština, Deutsch, Français, Italiano, Português (Brasil), Polski, Nederlands, Русский, Українська, Türkçe, Bahasa Indonesia, العربية (right-to-left), हिन्दी, 简体中文, 日本語 and 한국어. The app follows your system language by default; change it in Settings.
-- **One-tap actions:** Copy (automatic by default; `Ctrl+Shift+C` on desktop), Open, Share (Android), and a QR code.
-- **Searchable recent links:** history is stored only on this device.
+- **One-tap actions:** Copy (automatic by default; `Ctrl+Shift+C` on desktop), Open, Share (Android), and a QR code you can save as an image.
+- **Clipboard suggestion (desktop):** switch to the app with a long link on the clipboard and it offers to shorten it.
+- **Update notice:** a small banner when a new version is on GitHub (checked at most once a day; can be turned off).
+- **Searchable recent links:** pin favourites to the top, and export or import them as CSV. History is stored only on this device.
 - **Light, dark or system theme**, with small animations throughout.
 - **Android Share menu:** in Chrome, YouTube or any other app, choose *Share → URL Shortener*. Long links are shortened right away; short links are expanded.
-- **Desktop shortcut:** `UrlShortener --quick` shortens whatever link is on the clipboard in a small pop-up, copies the result and closes. Give it a keyboard shortcut in your system settings (KDE: *System Settings → Shortcuts → Add Command*; GNOME: *Settings → Keyboard → Custom Shortcuts*; Windows: a shortcut file with a *Shortcut key*). It works on Wayland too.
+- **Android text selection:** select a link anywhere and tap *Shorten link* in the menu that appears. In a text field it's replaced by the short link.
+- **Android Quick Settings tile and launcher shortcut:** add the *Shorten clipboard* tile, or long-press the app icon. Either one shortens the link on the clipboard without opening the app.
+- **Desktop shortcut:** `UrlShortener --quick` shortens whatever link is on the clipboard in a small pop-up, copies the result and closes. Give it a keyboard shortcut in your system settings (KDE: *System Settings → Shortcuts → Add Command*; GNOME: *Settings → Keyboard → Custom Shortcuts*; Windows: a shortcut file with a *Shortcut key*). It works on Wayland too. On Linux it's also in the app icon's right-click menu.
 - **Command line:** `UrlShortener shorten <url> [--service is.gd|tinyurl|da.gd|v.gd] [--alias name]` prints the short link, for scripts and terminals on Linux and macOS.
 
 History and settings are saved as JSON in the per-user app data folder (`~/.config/UrlShortener` on Linux, `%APPDATA%\UrlShortener` on Windows, and app-private storage on Android).
@@ -36,9 +40,9 @@ Get the latest version from the [**Releases**](https://github.com/Bojacnik/URL-S
 | Platform | File |
 | --- | --- |
 | Windows | `UrlShortener-vX.Y.Z-win-x64.zip` (contains `UrlShortener.exe`) |
-| Linux | `UrlShortener-vX.Y.Z-linux-x64.tar.gz` (a single executable) |
+| Linux | `UrlShortener-vX.Y.Z-x86_64.AppImage` (download, `chmod +x`, run), or `UrlShortener-vX.Y.Z-linux-x64.tar.gz` and run `./install.sh` inside it to add the app to your menu (`./install.sh --uninstall` removes it) |
 | macOS (Apple Silicon) | `UrlShortener-vX.Y.Z-osx-arm64.tar.gz` |
-| Android 6.0+ | `UrlShortener-vX.Y.Z-android.apk` (for 64-bit ARM and x86 devices; allow "install unknown apps" to sideload) |
+| Android 6.0+ | `UrlShortener-vX.Y.Z-android-arm64.apk` for almost every phone, `…-android-x64.apk` for emulators and Chromebooks. Allow "install unknown apps" to sideload. |
 
 Every push also builds these, available as artifacts under **Actions**.
 
@@ -88,7 +92,7 @@ The Android build is signed with the debug key, which is fine for sideloading. P
 dotnet test tests/UrlShortener.Tests
 ```
 
-There are 151 tests:
+There are 177 tests:
 - **Providers:** run against a fake HTTP handler, so no network is needed.
 - **Logic and storage:** fallback, validation, storage, and the view models (batch, expand, quick mode).
 - **Translations:** every language must have every string, with the same `{0}` placeholders as English.
@@ -111,14 +115,28 @@ Repo-wide files:
 - `.editorconfig`: code style, which CI checks with `dotnet format`.
 - `.gitattributes`: line endings.
 - `.github/dependabot.yml`: weekly dependency updates.
+- `packaging/linux/`: the app-menu entry, icon and `install.sh` that ship with the Linux release.
+- `tools/`: generators for the Android and Linux labels, and the Android signing-key helper.
 
-### Adding or improving a translation
+### Help translate
 
-The strings live in `src/UrlShortener.UI/i18n/<language>.json`, and English (`en.json`) is the reference. To add a language, copy `en.json`, translate the values, and add the language to `Loc.Languages` in `src/UrlShortener.UI/Localization/Loc.cs`. The tests check that nothing is missing. The translations were written with AI assistance, so corrections from native speakers are very welcome.
+The translations were written with AI assistance, so **corrections from native speakers are very welcome**. Open an issue or a pull request, even for a single string.
+
+The strings live in `src/UrlShortener.UI/i18n/<language>.json`, and English (`en.json`) is the reference. After changing them, run `python3 tools/generate-android-strings.py` and `python3 tools/generate-linux-desktop.py`; these update the Android launcher labels and the Linux menu entry. To add a language, copy `en.json`, translate the values, add the language to `Loc.Languages` in `src/UrlShortener.UI/Localization/Loc.cs`, and add its folder name to both scripts. The tests check that nothing is missing or out of date.
 
 ### Adding a service
 
 Subclass `ShortenerProviderBase`. Implement `BuildRequestUri` and `ParseResponse`, set the alias rules, then register the class in `ShortenerService.CreateDefault`.
+
+## Android signing
+
+Android only installs an update if it's signed with the same key as the installed app. Releases are therefore signed with your own key, kept in GitHub secrets, and the release workflow refuses to run without it. You set this up once:
+
+```bash
+./tools/create-android-keystore.sh   # creates the key and (with the GitHub CLI) uploads the four secrets
+```
+
+**Back up the keystore file and its password**, for example in a password manager. If they're lost, users have to uninstall and reinstall to get updates. Keystore files are in `.gitignore`, so they can't be committed by accident. Day-to-day CI builds still use the debug key.
 
 ## Releasing
 

@@ -1,53 +1,44 @@
 {
   "App.Title": "مُقصِّر الروابط",
   "App.Tagline": "مجاني · بلا حساب · سجل خاص",
-
   "Hero.TitleStart": "اجعل الروابط الطويلة ",
   "Hero.TitleAccent": "قصيرة.",
   "Hero.TitleEnd": "",
   "Hero.Subtitle": "الصق رابطًا، واختر خدمة، واحصل على رابط قصير أنيق مع رمز QR.",
-
   "Mode.Shorten": "تقصير",
   "Mode.Batch": "دفعة",
   "Mode.Expand": "كشف",
-
   "Input.Placeholder": "الصق رابطًا طويلًا…",
   "Input.Paste": "لصق",
   "Input.PasteTip": "اللصق من الحافظة",
   "Input.Clear": "مسح",
   "Input.LooksShort": "يبدو أن هذا رابط قصير بالفعل.",
   "Input.ExpandIt": "اعرف إلى أين يؤدي",
-
   "Service.Label": "الخدمة",
   "Service.is.gd": "مجانية وبلا حساب، تعمل منذ 2009. تدعم الأسماء المخصصة.",
   "Service.tinyurl": "أقدم خدمة تقصير (2002). مجانية وبلا حساب. تدعم الأسماء المخصصة.",
   "Service.da.gd": "مفتوحة المصدر وبسيطة. أسماء مخصصة حتى 10 أحرف.",
   "Service.v.gd": "الخدمة الشقيقة لـ is.gd: تعرض صفحة معاينة قبل إعادة التوجيه.",
-
   "Alias.Toggle": "اسم مخصص",
   "Alias.Placeholder": "my_link",
   "Alias.Length": "يجب أن يتكون الاسم المخصص في {0} من {1} إلى {2} حرفًا.",
   "Alias.Characters": "استخدم في الاسم المخصص الحروف والأرقام و _ فقط.",
   "Alias.CharactersDash": "استخدم في الاسم المخصص الحروف والأرقام و - و _ فقط.",
   "Alias.NotSupported": "لا تدعم {0} الأسماء المخصصة.",
-
   "Url.Empty": "أدخل رابطًا.",
   "Url.Spaces": "لا يمكن أن يحتوي الرابط على مسافات.",
   "Url.Invalid": "لا يبدو هذا رابطًا صالحًا.",
   "Url.Scheme": "تعمل روابط http:// و https:// فقط.",
   "Url.LocalAddress": "لا يمكن استخدام العناوين المحلية أو عناوين الشبكات الخاصة مع خدمة عامة.",
   "Url.NoDomain": "يحتاج العنوان إلى اسم نطاق كامل مثل example.com.",
-
   "Shorten.Button": "تقصير الرابط",
   "Shorten.Busy": "جارٍ التقصير…",
-
   "Error.RateLimited": "تتلقى {0} طلبات كثيرة جدًا. حاول مرة أخرى بعد دقيقة.",
   "Error.Service": "لا تعمل {0} حاليًا. جرّب خدمة أخرى.",
   "Error.Network": "تعذّر الوصول إلى {0}. تحقّق من اتصالك بالإنترنت.",
   "Error.Rejected": "رفضت {0} هذا الرابط.",
   "Error.AliasTaken": "هذا الاسم غير متاح في {0}. جرّب اسمًا آخر.",
   "Error.Generic": "حدث خطأ ما.",
-
   "Result.Label": "رابطك القصير",
   "Result.Copy": "نسخ",
   "Result.Copied": "تم النسخ",
@@ -56,7 +47,6 @@
   "Result.QrCode": "رمز QR",
   "Result.ScanHint": "امسحه بكاميرا الهاتف",
   "Result.Fallback": "لم تكن {0} متاحة، لذا استُخدمت {1}.",
-
   "Batch.Placeholder": "الصق الروابط، رابطًا في كل سطر",
   "Batch.Count": "الروابط: {0}",
   "Batch.Limit": "حتى {0} رابطًا في المرة الواحدة؛ تُتخطّى الأسطر الزائدة.",
@@ -68,7 +58,6 @@
   "Batch.CopyTableTip": "الروابط الطويلة والقصيرة في عمودين، جاهزة للصق في جدول بيانات",
   "Batch.Clear": "مسح",
   "Batch.Stop": "إيقاف",
-
   "Expand.Intro": "تحقّق من الوجهة الحقيقية لرابط قصير قبل أن تفتحه.",
   "Expand.Placeholder": "الصق رابطًا قصيرًا…",
   "Expand.Button": "كشف الرابط",
@@ -83,7 +72,6 @@
   "Expand.Loop": "توقّف: الرابط يعيد التوجيه في حلقة.",
   "Expand.Failed": "تعذّر الوصول إلى هذا الرابط. تحقّق من العنوان ومن اتصالك بالإنترنت.",
   "Expand.Shorten": "تقصير هذا الرابط",
-
   "History.Title": "الروابط الأخيرة",
   "History.ClearAll": "مسح الكل",
   "History.Search": "ابحث في روابطك",
@@ -92,18 +80,15 @@
   "History.NoMatches": "لا توجد روابط تطابق بحثك.",
   "History.TapToCopy": "انقر للنسخ",
   "History.Remove": "إزالة",
-
   "Age.Now": "الآن",
   "Age.Minutes": "منذ {0} د",
   "Age.Hours": "منذ {0} س",
   "Age.Days": "منذ {0} ي",
-
   "Toast.Copied": "تم نسخ {0}",
   "Toast.CopiedCount": "الروابط المنسوخة: {0}",
   "Toast.ClipboardEmpty": "الحافظة فارغة",
   "Toast.Removed": "الروابط المحذوفة: {0}",
   "Toast.CantOpen": "تعذّر فتح المتصفح",
-
   "Settings.Title": "الإعدادات",
   "Settings.Appearance": "المظهر",
   "Settings.Language": "اللغة",
@@ -112,15 +97,34 @@
   "Settings.AutoCopy": "نسخ الروابط الجديدة تلقائيًا",
   "Settings.QuickTip": "نصيحة: عيّن اختصارًا للوحة المفاتيح للأمر «UrlShortener --quick» في إعدادات النظام لتقصير الرابط الموجود في الحافظة من أي تطبيق.",
   "Settings.About": "الإصدار {0} · تُنشئ الروابط خدماتٌ عامة مجانية (is.gd وTinyURL وda.gd وv.gd). يبقى السجل على هذا الجهاز.",
-
   "Theme.System": "النظام",
   "Theme.Light": "فاتح",
   "Theme.Dark": "داكن",
-
   "Quick.Working": "جارٍ تقصير الرابط الموجود في الحافظة…",
   "Quick.Done": "تم نسخ الرابط القصير",
   "Quick.NoLink": "لا يوجد رابط في الحافظة",
   "Quick.Failed": "تعذّر تقصير الرابط",
-
-  "Share.Chooser": "مشاركة الرابط القصير"
+  "Share.Chooser": "مشاركة الرابط القصير",
+  "Common.Dismiss": "إغلاق",
+  "Clipboard.Suggest": "هل تريد تقصير الرابط الموجود في الحافظة؟",
+  "Clipboard.Use": "تقصير",
+  "Result.SaveQr": "حفظ رمز QR",
+  "Toast.QrSaved": "تم حفظ رمز QR",
+  "History.Export": "تصدير",
+  "History.ExportTip": "احفظ روابطك في ملف CSV (يُفتح في Excel أو LibreOffice أو جداول بيانات Google)",
+  "History.Import": "استيراد",
+  "History.ImportTip": "أضف روابط من ملف CSV صدّره هذا التطبيق",
+  "History.Pin": "تثبيت في الأعلى",
+  "History.Unpin": "إلغاء التثبيت",
+  "History.ClearAllTip": "تُحفظ الروابط المثبّتة",
+  "Toast.Exported": "الروابط المصدّرة: {0}",
+  "Toast.Imported": "الروابط المستوردة: {0}",
+  "Toast.ImportFailed": "تعذّرت قراءة هذا الملف كسجل روابط.",
+  "Update.Available": "الإصدار {0} متاح.",
+  "Update.Download": "تنزيل",
+  "Update.Later": "لاحقًا",
+  "Settings.UpdateCheck": "التحقق من وجود تحديثات",
+  "Android.ShortenLink": "تقصير الرابط",
+  "Android.ShortenClipboard": "تقصير الحافظة",
+  "Android.ShortenClipboardLong": "تقصير الرابط الموجود في الحافظة"
 }

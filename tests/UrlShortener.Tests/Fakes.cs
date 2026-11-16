@@ -57,6 +57,19 @@ internal sealed class FakePlatform : IPlatformServices
     public bool CanShare { get; set; }
     public List<string> Shared { get; } = [];
     public void Share(string text) => Shared.Add(text);
+
+    public Dictionary<string, byte[]> SavedFiles { get; } = [];
+    public string? FileToOpen { get; set; }
+    public bool CancelDialogs { get; set; }
+
+    public Task<bool> SaveFileAsync(string suggestedName, FileKind kind, byte[] content)
+    {
+        if (CancelDialogs) return Task.FromResult(false);
+        SavedFiles[suggestedName] = content;
+        return Task.FromResult(true);
+    }
+
+    public Task<string?> OpenTextFileAsync(FileKind kind) => Task.FromResult(CancelDialogs ? null : FileToOpen);
 }
 
 internal sealed class TempDir : IDisposable

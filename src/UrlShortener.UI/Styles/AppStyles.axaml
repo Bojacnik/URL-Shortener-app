@@ -389,6 +389,12 @@
         <Setter Property="Background" Value="{DynamicResource Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
     </Style>
+    <!-- Pinned rows get a soft accent outline -->
+    <Style Selector="Button.row.pinned /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentSoftHover}" />
+        <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+
     <!-- Rows that can't be clicked (failed batch items) keep their normal look instead of turning grey -->
     <Style Selector="Button.row:disabled /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource Surface}" />

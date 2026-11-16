@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
+using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 
 namespace UrlShortener.UI.Services;
@@ -42,4 +43,57 @@ public sealed class AvaloniaPlatformServices(Func<TopLevel?> topLevel) : IPlatfo
     public bool CanShare => App.ShareHandler is not null;
 
     public void Share(string text) => App.ShareHandler?.Invoke(text);
+
+    public async Task<bool> SaveFileAsync(string suggestedName, FileKind kind, byte[] content)
+    {
+        if (topLevel()?.StorageProvider is not { CanSave: true } storage) return false;
+        try
+        {
+            var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                SuggestedFileName = suggestedName,
+                DefaultExtension = Extension(kind),
+                FileTypeChoices = [FileType(kind)],
+                ShowOverwritePrompt = true,
+            });
+            if (file is null) return false;
+            await using var stream = await file.OpenWriteAsync();
+            stream.SetLength(0);
+            await stream.WriteAsync(content);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            return false;
+        }
+    }
+
+    public async Task<string?> OpenTextFileAsync(FileKind kind)
+    {
+        if (topLevel()?.StorageProvider is not { CanOpen: true } storage) return null;
+        try
+        {
+            var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                AllowMultiple = false,
+                FileTypeFilter = [FileType(kind), FilePickerFileTypes.All],
+            });
+            if (files.Count == 0) return null;
+            await using var stream = await files[0].OpenReadAsync();
+            using var reader = new StreamReader(stream);
+            return await reader.ReadToEndAsync();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException)
+        {
+            return null;
+        }
+    }
+
+    private static string Extension(FileKind kind) => kind == FileKind.Csv ? "csv" : "png";
+
+    private static FilePickerFileType FileType(FileKind kind) => kind switch
+    {
+        FileKind.Csv => new("CSV") { Patterns = ["*.csv"], MimeTypes = ["text/csv", "text/comma-separated-values"], AppleUniformTypeIdentifiers = ["public.comma-separated-values-text"] },
+        _ => FilePickerFileTypes.ImagePng,
+    };
 }

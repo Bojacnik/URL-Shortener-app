@@ -1,53 +1,44 @@
 {
   "App.Title": "Zkracovač URL",
   "App.Tagline": "Zdarma · Bez účtu · Soukromá historie",
-
   "Hero.TitleStart": "Z dlouhých odkazů ",
   "Hero.TitleAccent": "krátké.",
   "Hero.TitleEnd": "",
   "Hero.Subtitle": "Vložte odkaz, vyberte službu a získejte úhledný krátký odkaz s QR kódem.",
-
   "Mode.Shorten": "Zkrátit",
   "Mode.Batch": "Hromadně",
   "Mode.Expand": "Rozbalit",
-
   "Input.Placeholder": "Vložte dlouhý odkaz…",
   "Input.Paste": "Vložit",
   "Input.PasteTip": "Vložit ze schránky",
   "Input.Clear": "Vymazat",
   "Input.LooksShort": "Tohle už vypadá jako krátký odkaz.",
   "Input.ExpandIt": "Zjistit, kam vede",
-
   "Service.Label": "SLUŽBA",
   "Service.is.gd": "Zdarma, bez účtu, funguje od roku 2009. Podporuje vlastní aliasy.",
   "Service.tinyurl": "Nejstarší zkracovač (2002). Zdarma, bez účtu. Podporuje vlastní aliasy.",
   "Service.da.gd": "Open source a minimalistický. Aliasy do 10 znaků.",
   "Service.v.gd": "Sesterská služba is.gd: před přesměrováním zobrazí náhled.",
-
   "Alias.Toggle": "Vlastní alias",
   "Alias.Placeholder": "muj_odkaz",
   "Alias.Length": "Aliasy pro {0} musí mít {1}–{2} znaků.",
   "Alias.Characters": "V aliasu používejte jen písmena, číslice a _.",
   "Alias.CharactersDash": "V aliasu používejte jen písmena, číslice, - a _.",
   "Alias.NotSupported": "{0} nepodporuje vlastní aliasy.",
-
   "Url.Empty": "Zadejte odkaz.",
   "Url.Spaces": "Odkaz nesmí obsahovat mezery.",
   "Url.Invalid": "Tohle nevypadá jako platný odkaz.",
   "Url.Scheme": "Fungují jen odkazy http:// a https://.",
   "Url.LocalAddress": "Místní adresy a adresy soukromých sítí nejde použít s veřejnou službou.",
   "Url.NoDomain": "Adresa potřebuje celé doménové jméno, například example.com.",
-
   "Shorten.Button": "Zkrátit odkaz",
   "Shorten.Busy": "Zkracuji…",
-
   "Error.RateLimited": "{0} dostává příliš mnoho požadavků. Zkuste to znovu za minutu.",
   "Error.Service": "{0} teď nefunguje. Zkuste jinou službu.",
   "Error.Network": "Nepodařilo se spojit s {0}. Zkontrolujte připojení k internetu.",
   "Error.Rejected": "{0} tento odkaz odmítl.",
   "Error.AliasTaken": "Tento alias není na {0} k dispozici. Zkuste jiný.",
   "Error.Generic": "Něco se pokazilo.",
-
   "Result.Label": "VÁŠ KRÁTKÝ ODKAZ",
   "Result.Copy": "Kopírovat",
   "Result.Copied": "Zkopírováno",
@@ -56,7 +47,6 @@
   "Result.QrCode": "QR kód",
   "Result.ScanHint": "Naskenujte fotoaparátem telefonu",
   "Result.Fallback": "{0} nebyl dostupný, proto byl použit {1}.",
-
   "Batch.Placeholder": "Vložte odkazy, každý na samostatný řádek",
   "Batch.Count": "Odkazů: {0}",
   "Batch.Limit": "Najednou nejvýš {0} odkazů; další řádky se přeskočí.",
@@ -68,7 +58,6 @@
   "Batch.CopyTableTip": "Dlouhé a krátké odkazy ve dvou sloupcích, připravené k vložení do tabulky",
   "Batch.Clear": "Vymazat",
   "Batch.Stop": "Zastavit",
-
   "Expand.Intro": "Zjistěte, kam krátký odkaz opravdu vede, ještě než ho otevřete.",
   "Expand.Placeholder": "Vložte krátký odkaz…",
   "Expand.Button": "Rozbalit odkaz",
@@ -83,7 +72,6 @@
   "Expand.Loop": "Zastaveno: odkaz přesměrovává dokola.",
   "Expand.Failed": "Odkaz se nepodařilo otevřít. Zkontrolujte adresu a připojení k internetu.",
   "Expand.Shorten": "Zkrátit tento",
-
   "History.Title": "Nedávné odkazy",
   "History.ClearAll": "Smazat vše",
   "History.Search": "Hledat v odkazech",
@@ -92,18 +80,15 @@
   "History.NoMatches": "Hledání neodpovídá žádný odkaz.",
   "History.TapToCopy": "Klepnutím zkopírujete",
   "History.Remove": "Odebrat",
-
   "Age.Now": "právě teď",
   "Age.Minutes": "před {0} min",
   "Age.Hours": "před {0} h",
   "Age.Days": "před {0} d",
-
   "Toast.Copied": "Zkopírováno: {0}",
   "Toast.CopiedCount": "Zkopírováno odkazů: {0}",
   "Toast.ClipboardEmpty": "Schránka je prázdná",
   "Toast.Removed": "Odebráno odkazů: {0}",
   "Toast.CantOpen": "Prohlížeč se nepodařilo otevřít",
-
   "Settings.Title": "Nastavení",
   "Settings.Appearance": "VZHLED",
   "Settings.Language": "JAZYK",
@@ -112,15 +97,34 @@
   "Settings.AutoCopy": "Nové odkazy automaticky kopírovat",
   "Settings.QuickTip": "Tip: v nastavení systému přiřaďte příkazu „UrlShortener --quick“ klávesovou zkratku a zkracujte odkaz ze schránky z jakékoli aplikace.",
   "Settings.About": "Verze {0} · Odkazy vytvářejí bezplatné veřejné služby (is.gd, TinyURL, da.gd, v.gd). Historie zůstává v tomto zařízení.",
-
   "Theme.System": "Systém",
   "Theme.Light": "Světlý",
   "Theme.Dark": "Tmavý",
-
   "Quick.Working": "Zkracuji odkaz ze schránky…",
   "Quick.Done": "Krátký odkaz zkopírován",
   "Quick.NoLink": "Ve schránce není žádný odkaz",
   "Quick.Failed": "Odkaz se nepodařilo zkrátit",
-
-  "Share.Chooser": "Sdílet krátký odkaz"
+  "Share.Chooser": "Sdílet krátký odkaz",
+  "Common.Dismiss": "Zavřít",
+  "Clipboard.Suggest": "Zkrátit odkaz ze schránky?",
+  "Clipboard.Use": "Zkrátit",
+  "Result.SaveQr": "Uložit QR kód",
+  "Toast.QrSaved": "QR kód uložen",
+  "History.Export": "Exportovat",
+  "History.ExportTip": "Uložit odkazy jako soubor CSV (otevře se v Excelu, LibreOffice nebo Tabulkách Google)",
+  "History.Import": "Importovat",
+  "History.ImportTip": "Přidat odkazy ze souboru CSV exportovaného touto aplikací",
+  "History.Pin": "Připnout nahoru",
+  "History.Unpin": "Odepnout",
+  "History.ClearAllTip": "Připnuté odkazy zůstanou",
+  "Toast.Exported": "Exportováno odkazů: {0}",
+  "Toast.Imported": "Importováno odkazů: {0}",
+  "Toast.ImportFailed": "Tento soubor se nepodařilo načíst jako historii odkazů.",
+  "Update.Available": "Je k dispozici verze {0}.",
+  "Update.Download": "Stáhnout",
+  "Update.Later": "Později",
+  "Settings.UpdateCheck": "Kontrolovat aktualizace",
+  "Android.ShortenLink": "Zkrátit odkaz",
+  "Android.ShortenClipboard": "Zkrátit ze schránky",
+  "Android.ShortenClipboardLong": "Zkrátit odkaz ze schránky"
 }

@@ -33,6 +33,19 @@ public partial class MainView : UserControl
         // Focusing on a phone would pop the keyboard straight away; only do it on desktop.
         if (!OperatingSystem.IsAndroid() && !OperatingSystem.IsIOS())
             UrlBox.Focus();
+
+        // Desktop: each time the window gets focus, look for a long link on the clipboard to offer.
+        if (TopLevel.GetTopLevel(this) is Window window)
+        {
+            window.Activated -= OnWindowActivated;
+            window.Activated += OnWindowActivated;
+        }
+    }
+
+    private async void OnWindowActivated(object? sender, EventArgs e)
+    {
+        if (DataContext is ViewModels.MainViewModel vm)
+            await vm.CheckClipboardAsync();
     }
 
     /// <summary>System bars in the app's background colour, with icons that stay readable.</summary>
@@ -41,10 +54,7 @@ public partial class MainView : UserControl
         if (_insets is null) return;
         var dark = ActualThemeVariant == ThemeVariant.Dark;
         _insets.SystemBarColor = dark ? Color.Parse("#0D0E13") : Color.Parse("#F5F6FA");
-
-        // SystemBarTheme only exists on some platforms' insets managers (Android); set it when present.
-        // Light = light bar with dark icons, Dark = dark bar with light icons.
-        if (_insets.GetType().GetProperty("SystemBarTheme") is { CanWrite: true } theme)
-            theme.SetValue(_insets, dark ? SystemBarTheme.Dark : SystemBarTheme.Light);
+        // Icon colour (light icons on dark bars, dark icons on light bars) is set natively by the platform.
+        App.SystemBarsHandler?.Invoke(dark);
     }
 }

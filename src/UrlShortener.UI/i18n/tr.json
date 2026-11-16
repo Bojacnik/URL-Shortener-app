@@ -1,53 +1,44 @@
 {
   "App.Title": "URL Kısaltıcı",
   "App.Tagline": "Ücretsiz · Hesap gerekmez · Özel geçmiş",
-
   "Hero.TitleStart": "Uzun bağlantıları ",
   "Hero.TitleAccent": "kısaltın.",
   "Hero.TitleEnd": "",
   "Hero.Subtitle": "Bir bağlantı yapıştırın, bir hizmet seçin ve QR kodlu, derli toplu bir kısa bağlantı alın.",
-
   "Mode.Shorten": "Kısalt",
   "Mode.Batch": "Toplu",
   "Mode.Expand": "Aç",
-
   "Input.Placeholder": "Uzun bir bağlantı yapıştırın…",
   "Input.Paste": "Yapıştır",
   "Input.PasteTip": "Panodan yapıştır",
   "Input.Clear": "Temizle",
   "Input.LooksShort": "Bu zaten kısa bir bağlantıya benziyor.",
   "Input.ExpandIt": "Nereye gittiğini gör",
-
   "Service.Label": "HİZMET",
   "Service.is.gd": "Ücretsiz, hesap gerekmez, 2009'dan beri çalışıyor. Özel takma adları destekler.",
   "Service.tinyurl": "En eski kısaltıcı (2002). Ücretsiz, hesap gerekmez. Özel takma adları destekler.",
   "Service.da.gd": "Açık kaynaklı ve sade. En fazla 10 karakterlik takma adlar.",
   "Service.v.gd": "is.gd'nin kardeş hizmeti: yönlendirmeden önce bir önizleme sayfası gösterir.",
-
   "Alias.Toggle": "Özel takma ad",
   "Alias.Placeholder": "baglantim",
   "Alias.Length": "{0} takma adları {1}–{2} karakter olmalıdır.",
   "Alias.Characters": "Takma adda yalnızca harf, rakam ve _ kullanın.",
   "Alias.CharactersDash": "Takma adda yalnızca harf, rakam, - ve _ kullanın.",
   "Alias.NotSupported": "{0} özel takma adları desteklemiyor.",
-
   "Url.Empty": "Bir bağlantı girin.",
   "Url.Spaces": "Bağlantıda boşluk olamaz.",
   "Url.Invalid": "Bu geçerli bir bağlantıya benzemiyor.",
   "Url.Scheme": "Yalnızca http:// ve https:// bağlantıları çalışır.",
   "Url.LocalAddress": "Yerel adresler ve özel ağ adresleri herkese açık bir hizmetle kullanılamaz.",
   "Url.NoDomain": "Adresin example.com gibi tam bir alan adı içermesi gerekir.",
-
   "Shorten.Button": "Bağlantıyı kısalt",
   "Shorten.Busy": "Kısaltılıyor…",
-
   "Error.RateLimited": "{0} çok fazla istek alıyor. Bir dakika sonra yeniden deneyin.",
   "Error.Service": "{0} şu anda çalışmıyor. Başka bir hizmet deneyin.",
   "Error.Network": "{0} hizmetine ulaşılamadı. İnternet bağlantınızı kontrol edin.",
   "Error.Rejected": "{0} bu bağlantıyı reddetti.",
   "Error.AliasTaken": "Bu takma ad {0} üzerinde kullanılamıyor. Başka bir tane deneyin.",
   "Error.Generic": "Bir şeyler ters gitti.",
-
   "Result.Label": "KISA BAĞLANTINIZ",
   "Result.Copy": "Kopyala",
   "Result.Copied": "Kopyalandı",
@@ -56,7 +47,6 @@
   "Result.QrCode": "QR kodu",
   "Result.ScanHint": "Telefon kamerasıyla tarayın",
   "Result.Fallback": "{0} kullanılamadığı için {1} kullanıldı.",
-
   "Batch.Placeholder": "Bağlantıları her satıra bir tane olacak şekilde yapıştırın",
   "Batch.Count": "Bağlantı: {0}",
   "Batch.Limit": "Tek seferde en fazla {0} bağlantı; fazla satırlar atlanır.",
@@ -68,7 +58,6 @@
   "Batch.CopyTableTip": "Uzun ve kısa bağlantılar iki sütunda, bir hesap tablosuna yapıştırmaya hazır",
   "Batch.Clear": "Temizle",
   "Batch.Stop": "Durdur",
-
   "Expand.Intro": "Kısa bir bağlantıyı açmadan önce gerçekte nereye gittiğini kontrol edin.",
   "Expand.Placeholder": "Kısa bir bağlantı yapıştırın…",
   "Expand.Button": "Bağlantıyı aç",
@@ -83,7 +72,6 @@
   "Expand.Loop": "Durduruldu: bağlantı döngü hâlinde yönlendiriyor.",
   "Expand.Failed": "Bu bağlantıya ulaşılamadı. Adresi ve internet bağlantınızı kontrol edin.",
   "Expand.Shorten": "Bunu kısalt",
-
   "History.Title": "Son bağlantılar",
   "History.ClearAll": "Tümünü temizle",
   "History.Search": "Bağlantılarınızda arayın",
@@ -92,18 +80,15 @@
   "History.NoMatches": "Aramanızla eşleşen bağlantı yok.",
   "History.TapToCopy": "Kopyalamak için dokunun",
   "History.Remove": "Kaldır",
-
   "Age.Now": "az önce",
   "Age.Minutes": "{0} dk önce",
   "Age.Hours": "{0} sa önce",
   "Age.Days": "{0} gün önce",
-
   "Toast.Copied": "{0} kopyalandı",
   "Toast.CopiedCount": "Kopyalanan bağlantı: {0}",
   "Toast.ClipboardEmpty": "Pano boş",
   "Toast.Removed": "Kaldırılan bağlantı: {0}",
   "Toast.CantOpen": "Tarayıcı açılamadı",
-
   "Settings.Title": "Ayarlar",
   "Settings.Appearance": "GÖRÜNÜM",
   "Settings.Language": "DİL",
@@ -112,15 +97,34 @@
   "Settings.AutoCopy": "Yeni bağlantıları otomatik kopyala",
   "Settings.QuickTip": "İpucu: Sistem ayarlarında “UrlShortener --quick” komutuna bir klavye kısayolu atayın; böylece panodaki bağlantıyı herhangi bir uygulamadan kısaltabilirsiniz.",
   "Settings.About": "Sürüm {0} · Bağlantılar ücretsiz, herkese açık hizmetlerle oluşturulur (is.gd, TinyURL, da.gd, v.gd). Geçmiş bu cihazda kalır.",
-
   "Theme.System": "Sistem",
   "Theme.Light": "Açık",
   "Theme.Dark": "Koyu",
-
   "Quick.Working": "Panodaki bağlantı kısaltılıyor…",
   "Quick.Done": "Kısa bağlantı kopyalandı",
   "Quick.NoLink": "Panoda bağlantı yok",
   "Quick.Failed": "Bağlantı kısaltılamadı",
-
-  "Share.Chooser": "Kısa bağlantıyı paylaş"
+  "Share.Chooser": "Kısa bağlantıyı paylaş",
+  "Common.Dismiss": "Kapat",
+  "Clipboard.Suggest": "Panodaki bağlantı kısaltılsın mı?",
+  "Clipboard.Use": "Kısalt",
+  "Result.SaveQr": "QR kodunu kaydet",
+  "Toast.QrSaved": "QR kodu kaydedildi",
+  "History.Export": "Dışa aktar",
+  "History.ExportTip": "Bağlantılarınızı CSV dosyası olarak kaydedin (Excel, LibreOffice veya Google E-Tablolar'da açılır)",
+  "History.Import": "İçe aktar",
+  "History.ImportTip": "Bu uygulamayla dışa aktarılmış bir CSV dosyasından bağlantı ekleyin",
+  "History.Pin": "Üste sabitle",
+  "History.Unpin": "Sabitlemeyi kaldır",
+  "History.ClearAllTip": "Sabitlenmiş bağlantılar korunur",
+  "Toast.Exported": "Dışa aktarılan bağlantı: {0}",
+  "Toast.Imported": "İçe aktarılan bağlantı: {0}",
+  "Toast.ImportFailed": "Bu dosya bağlantı geçmişi olarak okunamadı.",
+  "Update.Available": "{0} sürümü kullanılabilir.",
+  "Update.Download": "İndir",
+  "Update.Later": "Sonra",
+  "Settings.UpdateCheck": "Güncellemeleri denetle",
+  "Android.ShortenLink": "Bağlantıyı kısalt",
+  "Android.ShortenClipboard": "Panodakini kısalt",
+  "Android.ShortenClipboardLong": "Panodaki bağlantıyı kısalt"
 }

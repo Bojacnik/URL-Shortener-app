@@ -18,9 +18,15 @@ public partial class MainViewModel : ObservableObject
     private int _copiedVersion;
     private LocalizedText? _error;
     private LocalizedText? _resultNote;
+    private readonly UpdateChecker? _updates;
+    private DateTimeOffset? _lastUpdateCheck;
+    private string? _dismissedVersion;
+    private string? _lastClipboardSuggestion;
 
-    public MainViewModel(ShortenerService shortener, AppStorage storage, IPlatformServices platform, LinkExpander? expander = null)
+    public MainViewModel(ShortenerService shortener, AppStorage storage, IPlatformServices platform,
+        LinkExpander? expander = null, UpdateChecker? updates = null)
     {
+        _updates = updates;
         Shortener = shortener;
         _storage = storage;
         Platform = platform;
@@ -180,7 +186,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasResult), nameof(ShortDisplay), nameof(InputLooksShort))]
-    [NotifyCanExecuteChangedFor(nameof(CopyResultCommand), nameof(OpenResultCommand), nameof(ShareResultCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyResultCommand), nameof(OpenResultCommand), nameof(ShareResultCommand), nameof(SaveQrCommand))]
     public partial string? ShortUrl { get; set; }
 
     public string ShortDisplay => ShortUrl is null ? "" : HistoryItemViewModel.StripScheme(ShortUrl);
@@ -215,6 +221,28 @@ public partial class MainViewModel : ObservableObject
     public bool HistoryIsEmpty => _allHistory.Count == 0;
     public int HistoryCount => _allHistory.Count;
     public bool ShowHistorySearch => _allHistory.Count > 3;
+
+    // ---- clipboard suggestion (desktop) ----
+
+    /// <summary>A long link found on the clipboard when the window got focus, offered with one tap.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasClipboardSuggestion), nameof(ClipboardSuggestionDisplay))]
+    public partial string? ClipboardSuggestion { get; set; }
+
+    public bool HasClipboardSuggestion => ClipboardSuggestion is not null;
+    public string ClipboardSuggestionDisplay => ClipboardSuggestion is null ? "" : HistoryItemViewModel.StripScheme(ClipboardSuggestion);
+
+    // ---- updates ----
+
+    [ObservableProperty]
+    public partial bool CheckForUpdates { get; set; } = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdate), nameof(UpdateText))]
+    public partial UpdateInfo? AvailableUpdate { get; set; }
+
+    public bool HasUpdate => AvailableUpdate is not null;
+    public string UpdateText => AvailableUpdate is null ? "" : Loc.Instance.Format("Update.Available", AvailableUpdate.Version.ToString(3));
     public bool NoSearchMatches => _allHistory.Count > 0 && History.Count == 0;
 
     // ---- lifecycle ----
@@ -228,15 +256,60 @@ public partial class MainViewModel : ObservableObject
         CopyAutomatically = settings.CopyAutomatically;
         Theme = ThemeChoices.Any(c => c.Value == settings.Theme) ? settings.Theme : "System";
         Language = LanguageChoices.Any(c => c.Value == settings.Language) ? settings.Language : Loc.SystemCode;
+        CheckForUpdates = settings.CheckForUpdates;
+        _lastUpdateCheck = settings.LastUpdateCheck;
+        _dismissedVersion = settings.DismissedVersion;
         _loadingSettings = false;
         Platform.SetTheme(Theme);
         Loc.Instance.SetLanguage(Language);
 
         var entries = await _storage.LoadHistoryAsync();
         _allHistory.Clear();
-        _allHistory.AddRange(entries.OrderByDescending(e => e.CreatedAt).Select(e => new HistoryItemViewModel(e)));
+        _allHistory.AddRange(entries.Select(e => new HistoryItemViewModel(e)));
+        SortHistory();
         RefreshHistoryView();
+
+        _ = CheckForUpdatesAsync();
     }
+
+    /// <summary>Asks GitHub for a newer release, at most once a day, unless turned off in Settings.</summary>
+    internal async Task CheckForUpdatesAsync(bool force = false)
+    {
+        if (_updates is null || !CheckForUpdates) return;
+        if (!force && !UpdateChecker.IsDue(_lastUpdateCheck, DateTimeOffset.Now)) return;
+
+        _lastUpdateCheck = DateTimeOffset.Now;
+        SaveSettings();
+        var current = typeof(MainViewModel).Assembly.GetName().Version ?? new Version(0, 0, 0);
+        var update = await _updates.CheckAsync(current);
+        if (update is not null && update.Tag != _dismissedVersion)
+            AvailableUpdate = update;
+    }
+
+    /// <summary>
+    /// Called when the desktop window gets focus: if the clipboard holds a long link we haven't seen,
+    /// offer to shorten it. (Not on phones, where reading the clipboard shows a system notice.)
+    /// </summary>
+    public async Task CheckClipboardAsync()
+    {
+        if (!IsDesktop || IsBusy) return;
+        var text = await Platform.GetClipboardTextAsync();
+        var url = UrlValidator.ExtractUrl(text);
+        if (!UrlValidator.TryNormalize(url, out var uri, out UrlProblem _)
+            || ShortLinks.IsKnownShortLink(uri)
+            || url == _lastClipboardSuggestion
+            || SameLink(uri, InputUrl) || SameLink(uri, ResultLongUrl)
+            || _allHistory.Any(h => SameLink(uri, h.LongUrl) || SameLink(uri, h.ShortUrl)))
+            return;
+
+        _lastClipboardSuggestion = url;
+        ClipboardSuggestion = uri.AbsoluteUri;
+    }
+
+    private static bool SameLink(Uri uri, string? other) =>
+        !string.IsNullOrWhiteSpace(other)
+        && UrlValidator.TryNormalize(other, out var o, out UrlProblem _)
+        && Uri.Compare(uri, o, UriComponents.HttpRequestUrl, UriFormat.Unescaped, StringComparison.OrdinalIgnoreCase) == 0;
 
     /// <summary>
     /// Text shared into the app from another app (Android "Share → URL Shortener").
@@ -264,6 +337,11 @@ public partial class MainViewModel : ObservableObject
     partial void OnSelectedProviderChanged(IShortenerProvider value) => SaveSettings();
     partial void OnAutoFallbackChanged(bool value) => SaveSettings();
     partial void OnCopyAutomaticallyChanged(bool value) => SaveSettings();
+    partial void OnCheckForUpdatesChanged(bool value)
+    {
+        SaveSettings();
+        if (value && !_loadingSettings) _ = CheckForUpdatesAsync();
+    }
     partial void OnInputUrlChanged(string value) => SetError(null);
     partial void OnAliasChanged(string value) => SetError(null);
 
@@ -304,6 +382,9 @@ public partial class MainViewModel : ObservableObject
             CopyAutomatically = CopyAutomatically,
             Theme = Theme,
             Language = Language,
+            CheckForUpdates = CheckForUpdates,
+            LastUpdateCheck = _lastUpdateCheck,
+            DismissedVersion = _dismissedVersion,
         });
     }
 
@@ -429,11 +510,11 @@ public partial class MainViewModel : ObservableObject
         PersistHistory();
     }
 
+    /// <summary>Removes every link except the pinned ones.</summary>
     [RelayCommand]
     private void ClearHistory()
     {
-        var count = _allHistory.Count;
-        _allHistory.Clear();
+        var count = _allHistory.RemoveAll(h => !h.Pinned);
         HistoryFilter = "";
         RefreshHistoryView();
         PersistHistory();
@@ -452,6 +533,88 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(ResultNote));
         QrCodePng = null;
         ShowQr = false;
+    }
+
+    [RelayCommand]
+    private void TogglePin(HistoryItemViewModel? item)
+    {
+        if (item is null) return;
+        item.SetPinned(!item.Pinned);
+        SortHistory();
+        RefreshHistoryView();
+        PersistHistory();
+    }
+
+    [RelayCommand]
+    private async Task ExportHistoryAsync()
+    {
+        var csv = HistoryCsv.Export(_allHistory.Select(h => h.Entry));
+        // UTF-8 with a BOM so Excel shows non-English characters correctly.
+        var bytes = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(csv)).ToArray();
+        if (await Platform.SaveFileAsync($"url-shortener-history-{DateTime.Now:yyyy-MM-dd}.csv", FileKind.Csv, bytes))
+            ShowToast(Loc.Instance.Format("Toast.Exported", _allHistory.Count));
+    }
+
+    [RelayCommand]
+    private async Task ImportHistoryAsync()
+    {
+        var text = await Platform.OpenTextFileAsync(FileKind.Csv);
+        if (text is null) return;
+        List<HistoryEntry> imported;
+        try
+        {
+            imported = HistoryCsv.Import(text);
+        }
+        catch (FormatException)
+        {
+            ShowToast(Loc.Instance["Toast.ImportFailed"]);
+            return;
+        }
+
+        var before = _allHistory.Count;
+        var merged = HistoryCsv.Merge(_allHistory.Select(h => h.Entry), imported);
+        _allHistory.Clear();
+        _allHistory.AddRange(merged.Select(e => new HistoryItemViewModel(e)));
+        RefreshHistoryView();
+        PersistHistory();
+        ShowToast(Loc.Instance.Format("Toast.Imported", Math.Max(0, _allHistory.Count - before)));
+    }
+
+    [RelayCommand(CanExecute = nameof(HasResult))]
+    private async Task SaveQrAsync()
+    {
+        if (ShortUrl is null) return;
+        var png = QrCodeGenerator.CreatePng(ShortUrl, pixelsPerModule: 20);
+        var name = "qr-" + new string(ShortDisplay.Select(c => char.IsLetterOrDigit(c) ? c : '-').ToArray()) + ".png";
+        if (await Platform.SaveFileAsync(name, FileKind.Png, png))
+            ShowToast(Loc.Instance["Toast.QrSaved"]);
+    }
+
+    [RelayCommand]
+    private async Task UseClipboardSuggestionAsync()
+    {
+        if (ClipboardSuggestion is not { } url) return;
+        ClipboardSuggestion = null;
+        Mode = AppMode.Shorten;
+        UseAlias = false;
+        InputUrl = url;
+        if (ShortenCommand.CanExecute(null))
+            await ShortenCommand.ExecuteAsync(null);
+    }
+
+    [RelayCommand]
+    private void DismissClipboardSuggestion() => ClipboardSuggestion = null;
+
+    [RelayCommand]
+    private Task OpenUpdateAsync() =>
+        AvailableUpdate is { } update ? OpenUrlAsync(update.ReleasePage.AbsoluteUri) : Task.CompletedTask;
+
+    [RelayCommand]
+    private void DismissUpdate()
+    {
+        _dismissedVersion = AvailableUpdate?.Tag;
+        AvailableUpdate = null;
+        SaveSettings();
     }
 
     // ---- shared with the Batch and Expand view models ----
@@ -473,10 +636,13 @@ public partial class MainViewModel : ObservableObject
 
     internal void AddToHistory(HistoryEntry entry)
     {
+        var wasPinned = _allHistory.Any(h => h.Pinned && string.Equals(h.ShortUrl, entry.ShortUrl, StringComparison.OrdinalIgnoreCase));
         _allHistory.RemoveAll(h => string.Equals(h.ShortUrl, entry.ShortUrl, StringComparison.OrdinalIgnoreCase));
-        _allHistory.Insert(0, new HistoryItemViewModel(entry));
-        if (_allHistory.Count > AppStorage.MaxHistory)
-            _allHistory.RemoveRange(AppStorage.MaxHistory, _allHistory.Count - AppStorage.MaxHistory);
+        _allHistory.Add(new HistoryItemViewModel(entry with { Pinned = wasPinned }));
+        SortHistory();
+        // Over the limit: drop the oldest links that aren't pinned.
+        while (_allHistory.Count > AppStorage.MaxHistory && _allHistory.FindLastIndex(h => !h.Pinned) is var last and >= 0)
+            _allHistory.RemoveAt(last);
         RefreshHistoryView();
         PersistHistory();
     }
@@ -506,6 +672,14 @@ public partial class MainViewModel : ObservableObject
         if (version == _copiedVersion) JustCopied = false;
     }
 
+    /// <summary>Pinned links first, then newest first.</summary>
+    private void SortHistory()
+    {
+        var sorted = _allHistory.OrderByDescending(h => h.Pinned).ThenByDescending(h => h.Entry.CreatedAt).ToList();
+        _allHistory.Clear();
+        _allHistory.AddRange(sorted);
+    }
+
     private void PersistHistory() => _ = _storage.SaveHistoryAsync(_allHistory.Select(h => h.Entry).ToList());
 
     private void RefreshHistoryView()
@@ -528,5 +702,7 @@ public partial class MainViewModel : ObservableObject
         public void SetTheme(string theme) { }
         public bool CanShare => false;
         public void Share(string text) { }
+        public Task<bool> SaveFileAsync(string suggestedName, FileKind kind, byte[] content) => Task.FromResult(false);
+        public Task<string?> OpenTextFileAsync(FileKind kind) => Task.FromResult<string?>(null);
     }
 }

@@ -23,6 +23,9 @@ public partial class App : Application
     /// <summary>Set by platforms that have a system share sheet (Android).</summary>
     public static Action<string>? ShareHandler { get; set; }
 
+    /// <summary>Set by Android: makes status/navigation bar icons light (dark theme) or dark (light theme).</summary>
+    public static Action<bool>? SystemBarsHandler { get; set; }
+
     /// <summary>Desktop "--quick": show only the clipboard pop-up instead of the main window.</summary>
     public static bool QuickMode { get; set; }
 
@@ -63,7 +66,7 @@ public partial class App : Application
         }
 
         _expanderHttp = LinkExpander.CreateHttpClient();
-        _viewModel = new MainViewModel(shortener, storage, platform, new LinkExpander(_expanderHttp));
+        _viewModel = new MainViewModel(shortener, storage, platform, new LinkExpander(_expanderHttp), new UpdateChecker(_http));
 
         switch (ApplicationLifetime)
         {

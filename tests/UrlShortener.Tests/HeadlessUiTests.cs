@@ -246,6 +246,40 @@ public class HeadlessUiTests : IDisposable
         SaveScreenshot(phone, $"lang-{language}.png");
     }
 
+    [AvaloniaFact]
+    public async Task Screenshot_new_features()
+    {
+        var http = new FakeHttpHandler()
+            .On("is.gd", HttpStatusCode.OK, """{ "shorturl": "https://is.gd/v23" }""")
+            .On("api.github.com", HttpStatusCode.OK, """{ "tag_name": "v9.9.0", "html_url": "https://github.com/x/y/releases/tag/v9.9.0", "draft": false, "prerelease": false }""");
+        var storage = new AppStorage(_dir.Path);
+        await storage.SaveHistoryAsync(
+        [
+            new HistoryEntry("https://www.wikipedia.org/", "https://da.gd/wiki", "da.gd", DateTimeOffset.Now.AddDays(-3), Pinned: true),
+            new HistoryEntry("https://news.ycombinator.com/", "https://tinyurl.com/hn-front", "tinyurl", DateTimeOffset.Now.AddHours(-2)),
+        ]);
+        var platform = new FakePlatform { Clipboard = "https://github.com/AvaloniaUI/Avalonia/releases" };
+        var vm = new MainViewModel(ShortenerService.CreateDefault(http.Client()), storage, platform, updates: new UpdateChecker(http.Client()))
+        {
+            FeedbackDuration = TimeSpan.FromSeconds(30),
+        };
+        await vm.InitializeAsync();
+        await vm.CheckForUpdatesAsync(force: true);
+        vm.InputUrl = "https://github.com/Bojacnik/URL-Shortener-app";
+        await vm.ShortenCommand.ExecuteAsync(null);
+        vm.ShowQr = true;
+        platform.Clipboard = "https://docs.avaloniaui.net/docs/guides/platforms/android";
+        await vm.CheckClipboardAsync();
+
+        var window = new MainWindow { DataContext = vm, Width = 580, Height = 1500 };
+        Open(window);
+        await Settle();
+        Assert.True(vm.HasUpdate);
+        Assert.True(vm.HasClipboardSuggestion);
+        Assert.True(vm.History[0].Pinned);
+        SaveScreenshot(window, "new-features.png");
+    }
+
     private static void SaveScreenshot(Window window, string name)
     {
         var dir = Environment.GetEnvironmentVariable("SCREENSHOT_DIR");

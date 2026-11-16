@@ -11,4 +11,12 @@ public interface IPlatformServices
     /// <summary>True where the OS has a share sheet (Android).</summary>
     bool CanShare { get; }
     void Share(string text);
+
+    /// <summary>Asks where to save, then writes the file. False if cancelled or it failed.</summary>
+    Task<bool> SaveFileAsync(string suggestedName, FileKind kind, byte[] content);
+
+    /// <summary>Asks for a file and returns its text, or null if cancelled.</summary>
+    Task<string?> OpenTextFileAsync(FileKind kind);
 }
+
+public enum FileKind { Csv, Png }

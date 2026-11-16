@@ -12,7 +12,7 @@ namespace UrlShortener.Android;
 /// Chrome, YouTube etc. to "URL Shortener" opens the app and shortens it right away.
 /// </summary>
 [Activity(
-    Label = "URL Shortener",
+    Label = "@string/app_name",
     Theme = "@style/MyTheme.NoActionBar",
     Icon = "@mipmap/ic_launcher",
     RoundIcon = "@mipmap/ic_launcher_round",
@@ -22,11 +22,12 @@ namespace UrlShortener.Android;
     WindowSoftInputMode = global::Android.Views.SoftInput.AdjustResize,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode
                            | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
+[MetaData("android.app.shortcuts", Resource = "@xml/shortcuts")]
 [IntentFilter(
     [Intent.ActionSend],
     Categories = [Intent.CategoryDefault],
     DataMimeType = "text/plain",
-    Label = "Shorten link")]
+    Label = "@string/shorten_link")]
 public class MainActivity : AvaloniaMainActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
@@ -34,6 +35,7 @@ public class MainActivity : AvaloniaMainActivity
         // Register before base.OnCreate: that is where the view is created and its bindings
         // read CanShare, so the Share buttons only appear if this is already set.
         App.ShareHandler = ShareText;
+        App.SystemBarsHandler = SetSystemBarIcons;
         base.OnCreate(savedInstanceState);
 
         // After a rotation the same intent comes back; only handle a share once.
@@ -54,6 +56,16 @@ public class MainActivity : AvaloniaMainActivity
         {
             App.ReceiveSharedText(text);
         }
+    }
+
+    /// <summary>Dark theme → light icons; light theme → dark icons, on both the status and navigation bar.</summary>
+    private void SetSystemBarIcons(bool darkTheme)
+    {
+        if (Window is not { } window
+            || AndroidX.Core.View.WindowCompat.GetInsetsController(window, window.DecorView) is not { } controller)
+            return;
+        controller.AppearanceLightStatusBars = !darkTheme;
+        controller.AppearanceLightNavigationBars = !darkTheme;
     }
 
     private void ShareText(string text)

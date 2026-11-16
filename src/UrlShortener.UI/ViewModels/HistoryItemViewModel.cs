@@ -6,7 +6,15 @@ namespace UrlShortener.UI.ViewModels;
 
 public sealed class HistoryItemViewModel(HistoryEntry entry) : ObservableObject
 {
-    public HistoryEntry Entry { get; } = entry;
+    public HistoryEntry Entry { get; private set; } = entry;
+
+    public bool Pinned => Entry.Pinned;
+
+    internal void SetPinned(bool pinned)
+    {
+        Entry = Entry with { Pinned = pinned };
+        OnPropertyChanged(nameof(Pinned));
+    }
     public string ShortUrl => Entry.ShortUrl;
     public string LongUrl => Entry.LongUrl;
     public string ProviderId => Entry.ProviderId;
@@ -52,7 +60,7 @@ public sealed class HistoryItemViewModel(HistoryEntry entry) : ObservableObject
         || ShortUrl.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase)
         || LongUrl.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase);
 
-    internal static string StripScheme(string url)
+    public static string StripScheme(string url)
     {
         var i = url.IndexOf("://", StringComparison.Ordinal);
         return i >= 0 ? url[(i + 3)..] : url;

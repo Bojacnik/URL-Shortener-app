@@ -9,6 +9,15 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <!-- Smaller self-contained downloads: unused framework/Avalonia code is trimmed away and the single file is
+       compressed. TrimMode "partial" only trims libraries marked as trim-safe, so the app's own code is untouched. -->
+  <PropertyGroup Condition="'$(SelfContained)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" />
   </ItemGroup>

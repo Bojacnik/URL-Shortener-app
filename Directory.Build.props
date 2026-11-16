@@ -10,7 +10,7 @@
 
   <PropertyGroup Label="Version">
     <!-- The release workflow overrides this from the git tag (v2.1.0 → 2.1.0). -->
-    <Version>2.2.2</Version>
+    <Version>2.3.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Label="Metadata">
@@ -21,6 +21,12 @@
     <RepositoryUrl>https://github.com/Bojacnik/URL-Shortener-app</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <!-- Trimmed builds: Avalonia's designer-support assembly (only used by IDE previewers, never at run time)
+       reports trim warnings of its own; they're not about this app's code. -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);IL2104</NoWarn>
   </PropertyGroup>
 
   <!-- On GitHub Actions: reproducible builds and no ignored warnings. -->

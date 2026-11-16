@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace UrlShortener.Core;
 
-public sealed record HistoryEntry(string LongUrl, string ShortUrl, string ProviderId, DateTimeOffset CreatedAt);
+/// <param name="Pinned">Pinned links stay at the top and survive "Clear all".</param>
+public sealed record HistoryEntry(string LongUrl, string ShortUrl, string ProviderId, DateTimeOffset CreatedAt, bool Pinned = false);
 
 public sealed record AppSettings
 {
@@ -13,6 +14,11 @@ public sealed record AppSettings
     public string Theme { get; init; } = "System";
     /// <summary>"system" or a language code such as "cs".</summary>
     public string Language { get; init; } = "system";
+    /// <summary>Look for a newer version on GitHub at most once a day.</summary>
+    public bool CheckForUpdates { get; init; } = true;
+    public DateTimeOffset? LastUpdateCheck { get; init; }
+    /// <summary>A version the user chose "Later" for; not announced again.</summary>
+    public string? DismissedVersion { get; init; }
 }
 
 [JsonSerializable(typeof(List<HistoryEntry>))]
